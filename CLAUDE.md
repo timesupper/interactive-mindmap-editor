@@ -1,11 +1,11 @@
 # Claude Code Guide
 
-This repository is a multi-entry mind map toolkit:
+This repository is a multi-entry mind map toolkit that runs on **Claude Desktop, Claude Code (CLI), Codex Desktop, and Codex CLI**:
 
-- Codex uses `.codex-plugin/plugin.json` and `skills/interactive-mindmap-editor/SKILL.md`.
-- Claude Skill installs use root `SKILL.md`.
-- Claude Code project memory uses this `CLAUDE.md`.
-- Shared scripts live under `skills/interactive-mindmap-editor/scripts/`.
+- **Claude Code (CLI)** reads this `CLAUDE.md` when working inside this repository, and installs the skill via root `SKILL.md`.
+- **Claude Desktop** installs the same skill by uploading a `.zip` of this folder in Settings → Features → Skills.
+- **Codex** uses `.codex-plugin/plugin.json` and `skills/interactive-mindmap-editor/SKILL.md`, installed as a personal plugin.
+- All entry points share the same scripts under `skills/interactive-mindmap-editor/scripts/`.
 
 ## Purpose
 
@@ -71,7 +71,7 @@ python .\skills\interactive-mindmap-editor\scripts\xmind_to_mindmap_data.py .\in
 Validate Python scripts:
 
 ```powershell
-python -m py_compile .\skills\interactive-mindmap-editor\scripts\markdown_to_mindmap_data.py .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_markdown.py .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_xmind.py .\skills\interactive-mindmap-editor\scripts\text_to_xmind.py .\skills\interactive-mindmap-editor\scripts\xmind_to_mindmap_data.py
+python -m py_compile .\skills\interactive-mindmap-editor\scripts\*.py
 ```
 
 ## HTML Mind Map Rules
@@ -93,29 +93,12 @@ When creating or repairing standalone HTML mind maps:
 - Generated HTML with import/export controls should include `导入 Markdown` and `导出 Markdown`.
 - Generated HTML should include `全屏展示`; fullscreen should fill the display and reveal an `X`/`×` exit button only when the mouse points to the top area.
 
+## Skill Script Paths
+
+When the skill runs under Claude Code as an installed skill, reference bundled scripts with `${CLAUDE_SKILL_DIR}/scripts/...`. That substitution expands to the skill's own folder regardless of where it was installed (`~/.claude/skills/`, project `.claude/skills/`, or a plugin). Under Codex, the skill runs from its own directory, so relative `scripts/...` paths are correct.
+
 ## Git Notes
 
 - Keep Codex plugin files and Claude support files in the same repository.
 - Do not remove `.codex-plugin/` or `skills/`; Claude support is additive.
 - Update `README.md`, `USAGE.md`, and `CHANGELOG.md` when behavior changes.
-
-## Installation And Portability
-
-For Codex:
-
-- Install once per machine as a personal plugin.
-- After installation, any Codex project/task can use the plugin without copying this repository into each project.
-- To pin a project to a specific version, clone this repository into that project and ask Codex to use scripts from that path.
-
-For Claude:
-
-- Install as a personal skill by placing this repository at `$HOME\.claude\skills\interactive-mindmap-editor`.
-- Install as a project skill by placing this repository at `<project>\.claude\skills\interactive-mindmap-editor`.
-- Use personal skill for shared global behavior; use project skill when a project must carry its own pinned copy.
-- Keep `SKILL.md` at the skill folder root; Claude uses it as the skill entry.
-
-When migrating mind map work between projects:
-
-- Move `.html`, `.json`, `.md`, and `.xmind` artifacts with the target project.
-- Keep this repository installed globally in Codex/Claude when possible.
-- If the target environment cannot install global skills/plugins, copy this repository into the project's `.claude\skills\interactive-mindmap-editor` folder for Claude or into `$HOME\plugins\interactive-mindmap-editor` for Codex.

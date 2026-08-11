@@ -1,208 +1,109 @@
-# Interactive Mindmap Editor
+# Interactive Mindmap Editor（四环境兼容 Skill / 插件）
 
-Dual-compatible toolkit for Codex and Claude that creates, repairs, imports, and exports editable standalone HTML, Markdown, and XMind mind maps.
+将思维导图能力做成 **Claude Desktop、Claude Code（CLI）、Codex Desktop、Codex CLI 四环境兼容** 的工具包，用于创建、修复、导入和导出可编辑的 HTML/XMind/Markdown 思维导图。
 
-## What it does
+## 功能
 
-- Works as a Codex personal plugin.
-- Works as a Claude personal or project skill.
-- Works as a plain script toolkit when called directly from Python.
-- Convert text, outlines, articles, and notes into mind map data.
-- Convert Markdown outlines to mind map JSON, and export mind map JSON back to Markdown outlines.
-- Export mind map JSON or text outlines to XMind-compatible `.xmind` files.
-- Import modern `.xmind` files back into editable mind map JSON.
-- Repair editable HTML mind map interactions.
-- Generate HTML mind maps with fullscreen presentation controls and a top-hover `X` exit button.
-- Group secondary HTML toolbar actions behind a compact round menu button when many controls are present.
-- Use incremental toolbar expand/collapse: click once for one level, long-press for all levels.
-- Support two-line node editing, fold/unfold hit areas, overlap-safe layout, wrapping, and recursive node add/edit/delete behavior.
+- 将文本、Markdown、文章、笔记、章节内容整理成思维导图层级结构（JSON）。
+- 生成可编辑的独立 HTML 思维导图（支持双击编辑、右键增删、批注、折叠、拖拽、全屏展示）。
+- Markdown 提纲与思维导图 JSON 双向转换。
+- 将 JSON 或文本导出为 XMind 可打开的 `.xmind` 文件。
+- 识别现代 `.xmind` 文件并转换回思维导图 JSON。
+- 修复 HTML 思维导图的节点编辑、折叠、布局、重叠和层级操作问题。
 
-## Compatibility layout
+## 目录结构
 
 ```text
-interactive-mindmap-editor/
+claude-skill-interactive-mindmap/
 ├── .codex-plugin/
-│   └── plugin.json
-├── SKILL.md
-├── CLAUDE.md
-├── install-codex.ps1
-├── README.md
-├── USAGE.md
-├── CHANGELOG.md
+│   └── plugin.json                          # Codex 插件清单
+├── SKILL.md                                 # Claude Skill 入口（Claude Code / Claude Desktop）
+├── CLAUDE.md                                # Claude Code 项目记忆入口（仓库内工作时读取）
+├── README.md                                # 本说明
+├── USAGE.md                                 # 详细安装与使用说明
+├── CHANGELOG.md                             # 版本记录
+├── install-codex.ps1                        # Codex 一键安装脚本（PowerShell）
 └── skills/
     └── interactive-mindmap-editor/
-        ├── SKILL.md
+        ├── SKILL.md                         # Codex 技能定义（供 Codex 读取）
         ├── agents/
-        │   └── openai.yaml
+        │   └── openai.yaml                  # Codex agent 接口描述
         └── scripts/
-            ├── markdown_to_mindmap_data.py
-            ├── mindmap_data_to_markdown.py
-            ├── mindmap_data_to_xmind.py
-            ├── text_to_mindmap_data.py
-            ├── text_to_xmind.py
-            └── xmind_to_mindmap_data.py
+            ├── text_to_mindmap_data.py      # 文本/Markdown → 思维导图 JSON
+            ├── markdown_to_mindmap_data.py  # Markdown 提纲 → 思维导图 JSON
+            ├── mindmap_data_to_markdown.py  # 思维导图 JSON → Markdown 提纲
+            ├── mindmap_data_to_xmind.py     # JSON → .xmind
+            ├── text_to_xmind.py             # 文本/Markdown → .xmind
+            └── xmind_to_mindmap_data.py     # .xmind → JSON
 ```
 
-Entry points:
+各环境入口：
 
-- Codex reads `.codex-plugin/plugin.json`, then `skills/interactive-mindmap-editor/SKILL.md`.
-- Claude Skill reads root `SKILL.md` when this repository is installed as a skill folder.
-- Claude Code also reads `CLAUDE.md` when working inside this repository.
-- All entry points share the same scripts under `skills/interactive-mindmap-editor/scripts/`.
+- **Claude Code（CLI）**：把整个文件夹放到 `~/.claude/skills/`（个人级）或 `<项目>/.claude/skills/`（项目级），读取根目录 `SKILL.md`。
+- **Claude Desktop（桌面版）**：Settings → Features → Skills，上传本文件夹的 `.zip`。
+- **Codex（CLI 与桌面版）**：读取 `.codex-plugin/plugin.json` 定位技能，再读 `skills/interactive-mindmap-editor/SKILL.md`。桌面版与 CLI 共享 `~/.codex/` 配置，装一次两边可用。
 
-## Markdown import/export
+## 快速安装
 
-Convert Markdown or structured text to plugin JSON:
-
-```powershell
-python .\skills\interactive-mindmap-editor\scripts\markdown_to_mindmap_data.py .\input.md -o .\mindmap-data.json --root-title "主题"
-```
-
-Convert plugin JSON back to a Markdown outline:
+### Claude Code（CLI）
 
 ```powershell
-python .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_markdown.py .\mindmap-data.json -o .\outline.md
-```
-
-Generated standalone HTML mind maps should include `导入 Markdown` and `导出 Markdown` controls when import/export controls are present.
-
-## HTML toolbar menu
-
-When a generated standalone HTML mind map has many controls, group secondary actions behind a compact round menu button placed above the visible zoom controls. Keep zoom in, zoom out, and reset view visible as round buttons.
-
-Recommended menu items:
-
-- `展开`
-- `折叠`
-- `导入 Markdown`
-- `导出 Markdown`
-- `XMind`
-- `全屏展示`
-- `适配`
-
-## XMind import/export
-
-Convert plugin JSON to `.xmind`:
-
-```powershell
-python .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_xmind.py .\mindmap-data.json -o .\output.xmind
-```
-
-Convert Markdown or structured text directly to `.xmind`:
-
-```powershell
-python .\skills\interactive-mindmap-editor\scripts\text_to_xmind.py .\input.md -o .\output.xmind --root-title "主题"
-```
-
-Import `.xmind` back to plugin JSON:
-
-```powershell
-python .\skills\interactive-mindmap-editor\scripts\xmind_to_mindmap_data.py .\input.xmind -o .\mindmap-data.json
-```
-
-## Version history
-
-See [CHANGELOG.md](CHANGELOG.md) for version iteration notes.
-
-## Install in Codex
-
-Recommended PowerShell install:
-
-```powershell
-New-Item -ItemType Directory -Force "$HOME\plugins" | Out-Null
-git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\plugins\interactive-mindmap-editor"
-cd "$HOME\plugins\interactive-mindmap-editor"
-.\install-codex.ps1
-```
-
-Manual Codex install:
-
-```powershell
-New-Item -ItemType Directory -Force "$HOME\plugins" | Out-Null
-git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\plugins\interactive-mindmap-editor"
-
-$marketplacePath = "$HOME\.agents\plugins\marketplace.json"
-New-Item -ItemType Directory -Force "$HOME\.agents\plugins" | Out-Null
-
-$marketplace = [ordered]@{
-  name = "personal"
-  interface = [ordered]@{ displayName = "Personal" }
-  plugins = @(
-    [ordered]@{
-      name = "interactive-mindmap-editor"
-      source = [ordered]@{
-        source = "local"
-        path = "./plugins/interactive-mindmap-editor"
-      }
-      policy = [ordered]@{
-        installation = "AVAILABLE"
-        authentication = "ON_INSTALL"
-      }
-      category = "Productivity"
-    }
-  )
-}
-
-$json = $marketplace | ConvertTo-Json -Depth 10
-$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-[System.IO.File]::WriteAllText($marketplacePath, $json, $utf8NoBom)
-
-codex plugin marketplace add "$HOME"
-codex plugin add interactive-mindmap-editor@personal
-```
-
-If Codex reports `plugin was not found in marketplace personal`, check that `marketplace.json` has no UTF-8 BOM and that `codex plugin marketplace list` includes `personal`.
-
-Codex project portability:
-
-- Install once per machine for normal use; every Codex task can then use the plugin.
-- For another device, run the install commands on that device.
-- For a project-pinned copy, clone this repository into the project and ask Codex to use scripts from that local path.
-
-## Install in Claude
-
-Personal Claude skill install on Windows:
-
-```powershell
+# 个人级（所有项目可用）
 New-Item -ItemType Directory -Force "$HOME\.claude\skills" | Out-Null
 git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\.claude\skills\interactive-mindmap-editor"
-```
 
-Project-local Claude skill install:
-
-```powershell
-cd "E:\path\to\your\project"
+# 或项目级（仅当前项目）
+cd "E:\路径\to\你的项目"
 New-Item -ItemType Directory -Force ".\.claude\skills" | Out-Null
 git clone https://github.com/timesupper/interactive-mindmap-editor.git ".\.claude\skills\interactive-mindmap-editor"
 ```
 
-Claude project portability:
+安装后新开 Claude Code 会话即可，请求"生成思维导图"等任务会自动匹配。
 
-- Use personal skill install when many projects should share the same latest behavior.
-- Use project-local install when a project must carry a pinned copy of the skill.
-- Move mind map artifacts (`.html`, `.json`, `.md`, `.xmind`) with the project.
-- Keep root `SKILL.md` in the skill folder; Claude uses it as the skill entry.
+### Claude Desktop（桌面版）
 
-## Updating
+将整个 `claude-skill-interactive-mindmap` 文件夹打包为 `.zip`，在 Claude 桌面版 **设置 → 功能 → 技能** 中上传。桌面版脚本运行在受限沙箱，涉及 Python 转换的操作建议在 CLI 完成。
 
-Codex update:
+### Codex（CLI 与桌面版）
 
 ```powershell
+git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\plugins\interactive-mindmap-editor"
 cd "$HOME\plugins\interactive-mindmap-editor"
-git pull
 .\install-codex.ps1
 ```
 
-Claude personal skill update:
+验证：
 
 ```powershell
-cd "$HOME\.claude\skills\interactive-mindmap-editor"
-git pull
+codex plugin list
+# 应看到 interactive-mindmap-editor@personal
 ```
 
-Claude project skill update:
+## 脚本直接调用
 
-```powershell
-cd "E:\path\to\your\project\.claude\skills\interactive-mindmap-editor"
-git pull
+Python 脚本与平台无关，可直接在命令行使用（位于 `skills/interactive-mindmap-editor/scripts/`）：
+
+```bash
+python skills/interactive-mindmap-editor/scripts/text_to_mindmap_data.py input.md -o mindmap-data.json --root-title "主题"
+python skills/interactive-mindmap-editor/scripts/mindmap_data_to_xmind.py mindmap-data.json -o output.xmind
+python skills/interactive-mindmap-editor/scripts/xmind_to_mindmap_data.py input.xmind -o mindmap-data.json
 ```
+
+## 双兼容说明
+
+同一份 `scripts/` 被 Claude 和 Codex 共享，避免重复维护：
+
+- **Claude Code** 读取根目录 `SKILL.md`（frontmatter 含中英文触发词），脚本路径使用 `${CLAUDE_SKILL_DIR}/scripts/` 定位，任何安装位置都可靠。
+- **Claude Desktop** 上传同一份 `SKILL.md` 与 `scripts/`，但运行在沙箱中。
+- **Codex** 读取 `.codex-plugin/plugin.json` 定位技能目录，再读 `skills/interactive-mindmap-editor/SKILL.md`，脚本路径相对该目录为 `scripts/`。
+
+两个 SKILL.md 的差异：Claude 版 frontmatter 用 `name` + `description`（含中英文触发词），脚本路径用 `${CLAUDE_SKILL_DIR}`；Codex 版保留 Codex 风格 frontmatter 与相对路径 `scripts/`。
+
+## 详细文档
+
+- [USAGE.md](USAGE.md)：四个环境的详细安装、验证、更新与常见问题。
+- [CHANGELOG.md](CHANGELOG.md)：版本迭代记录。
+
+## 参考实现
+
+项目文件夹中的 `00_序言/序言思维导图.html` 是一个完整的可编辑 HTML 思维导图参考实现，包含本技能描述的全部交互能力。

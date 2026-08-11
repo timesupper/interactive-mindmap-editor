@@ -1,19 +1,21 @@
 ---
 name: interactive-mindmap-editor
-description: Create, repair, and extend standalone interactive HTML mind map editors with Markdown and XMind-compatible imports/exports. Use when Codex needs to turn user-provided text, Markdown, outlines, articles, book chapters, or notes into editable mind map data/HTML, Markdown outlines, or .xmind files, export plugin JSON to Markdown/XMind, import Markdown/.xmind into plugin JSON, or fix editable node titles/subtitles, double-click editing, compact toolbar menus, fullscreen presentation controls, collapse/expand hit areas, node overlap during editing, character-width wrapping, drag/click conflicts, and recursive add/edit/delete child-node behavior in HTML/CSS/JavaScript mind map files.
+description: Create, repair, and extend standalone interactive HTML mind map editors and XMind-compatible imports/exports. Use when Codex needs to turn user-provided text, Markdown, outlines, articles, book chapters, or notes into editable mind map data/HTML or .xmind files, export plugin JSON to XMind, import .xmind into plugin JSON, or fix editable node titles/subtitles, double-click editing, fullscreen presentation controls, collapse/expand hit areas, node overlap during editing, character-width wrapping, drag/click conflicts, and recursive add/edit/delete child-node behavior in HTML/CSS/JavaScript mind map files.
 ---
 
 # Interactive Mindmap Editor
 
 ## Overview
 
-Use this skill to create or modify standalone HTML mind map editors where nodes are rendered as DOM elements and connected with SVG paths. It supports related jobs: converting text or Markdown into a mind map hierarchy, exporting that hierarchy to Markdown or XMind-compatible `.xmind`, importing Markdown or `.xmind` back into plugin JSON, and repairing interactive editing/folding/layout behavior in an existing mind map.
+Use this skill to create or modify standalone HTML mind map editors where nodes are rendered as DOM elements and connected with SVG paths. It supports four related jobs: converting text into a mind map hierarchy, exporting that hierarchy to XMind-compatible `.xmind`, importing `.xmind` back into plugin JSON, and repairing interactive editing/folding/layout behavior in an existing mind map.
 
-This repository is dual-compatible. Codex loads this file through `.codex-plugin/plugin.json`; Claude loads the root `SKILL.md` when the repository is installed as a Claude skill; Claude Code may also read root `CLAUDE.md` as project memory. Keep these entry points aligned when behavior changes.
+## Locating Bundled Scripts
+
+This skill's Python scripts live in a `scripts/` subfolder next to this SKILL.md. Locate them at runtime with the filesystem (e.g. glob from the current working directory for `**/interactive-mindmap-editor/scripts/*.py`, or resolve the plugin install path shown by `codex plugin list`). When Codex runs, the working directory is the project root, not the skill folder, so relative `scripts/...` paths in the examples below are shorthand — expand them to the real path before running.
 
 ## Workflow
 
-1. Decide whether the user wants text-to-mindmap creation, Markdown import/export, XMind export, XMind import, existing-editor repair, or a combination.
+1. Decide whether the user wants text-to-mindmap creation, XMind export, XMind import, existing-editor repair, or a combination.
 2. For existing HTML, locate node rendering, measurement, layout, edit, drag, context-menu, fullscreen, and collapse logic. Search for `createNodeEl`, `refreshNodeEl`, `measure`, `layout`, `relayout`, `beginEdit`, `addChild`, `deleteNode`, `toggleCollapse`, `requestFullscreen`, `fullscreenchange`, `mousedown`, `dblclick`, and `contextmenu`.
 3. Confirm the data model before changing behavior. Check whether nodes store `id`, `title`, `sub`, `type`, `color`, `children`, and `collapsed`.
 4. Keep edits scoped. Preserve the existing visual language and engine unless the user asks for a new app.
@@ -49,53 +51,26 @@ Use these extraction rules:
 For structured Markdown/outlines, use the bundled script instead of hand-writing parsing logic:
 
 ```bash
-python scripts/text_to_mindmap_data.py input.md -o mindmap-data.json --root-title "主题"
-```
-
-You can also use the explicit Markdown alias:
-
-```bash
 python scripts/markdown_to_mindmap_data.py input.md -o mindmap-data.json --root-title "主题"
 ```
 
 For unstructured long prose, first reason about the hierarchy yourself, then either write the JSON directly or use the script as a rough first pass and refine the output.
 
-## Markdown Import And Export
+## Markdown Import/Export
 
-Use Markdown as an interchange format for outlines, Feishu documents, notes, and other text-first tools.
-
-Bundled scripts:
+Convert Markdown or structured text to mind map JSON:
 
 ```bash
 python scripts/markdown_to_mindmap_data.py input.md -o mindmap-data.json --root-title "主题"
+```
+
+Convert mind map JSON back to a Markdown outline:
+
+```bash
 python scripts/mindmap_data_to_markdown.py mindmap-data.json -o outline.md
 ```
 
-Mapping rules:
-
-- Markdown `#` heading can become the root title when the provided root title is the default.
-- Markdown headings, bullets, numbering, and indentation should preserve hierarchy.
-- Plugin root node -> Markdown `# 标题`.
-- Plugin `children` -> nested Markdown bullet list.
-- Plugin `sub` -> same-line subtitle after `：`.
-- Plugin `note` -> quoted Markdown lines under the node when present.
-- Keep Markdown output readable and text-first; do not include HTML-only layout, color, coordinates, or UI state.
-
-When generated standalone HTML contains import/export controls, include:
-
-```html
-<button id="importMarkdownBtn" title="导入 Markdown"><span>⬆</span>Markdown</button>
-<button id="exportMarkdownBtn" title="导出 Markdown"><span>⬇</span>Markdown</button>
-<input type="file" id="markdownInput" accept=".md,.markdown,.txt,text/markdown,text/plain">
-```
-
-HTML behavior:
-
-- `导出 Markdown` should serialize the current `rootNode.data` or equivalent live tree, not the original initial constant.
-- `导入 Markdown` should parse headings, bullets, numbering, and indentation into the same node data shape used by the editor.
-- After Markdown import, rebuild the tree, apply saved or default collapse state as appropriate, save the new state, and call `fitView()`.
-- Do not require a server or external library for basic Markdown outline import/export in standalone HTML.
-- Keep JSON and XMind import/export controls working after adding Markdown controls.
+Generated standalone HTML mind maps should include `导入 Markdown` and `导出 Markdown` controls when import/export controls are present.
 
 ## Compact Toolbar Menu
 
@@ -411,7 +386,6 @@ After changes, verify these behaviors in the local file or browser:
 - Generated `.xmind` packages contain root-level `content.json`, `metadata.json`, and `manifest.json`.
 - Imported `.xmind` files produce plugin JSON with `root -> part -> topic -> leaf` node types.
 - Generated HTML includes a `全屏展示` toolbar button, uses Fullscreen API when available, fills the display in fullscreen mode, and reveals an `X`/`×` exit button only when the mouse points to the top area.
-- Generated HTML with many toolbar controls groups secondary actions behind a round menu button above the visible zoom-in button.
 - Double-click title and subtitle both enter the same two-line editor.
 - Repeated double-click does not add extra rows.
 - Moving focus from title to subtitle does not save early.

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0+quad.20260811 - 2026-08-11
+
+- 新增四环境兼容支持：Claude Desktop、Claude Code（CLI）、Codex Desktop、Codex CLI。
+- 补全 `.codex-plugin/plugin.json`，使 Codex 桌面版与 CLI 都能以插件方式安装。
+- 新增 `markdown_to_mindmap_data.py` 与 `mindmap_data_to_markdown.py`，支持 Markdown 提纲与思维导图 JSON 双向转换。
+- Claude 侧 SKILL.md 脚本引用改用 `${CLAUDE_SKILL_DIR}`，跨个人/项目/插件安装位置均可靠。
+- 新增 `CLAUDE.md`、`USAGE.md`，分别作为 Claude Code 项目记忆入口和四环境安装说明。
+- README 更新为四环境安装说明。
+
 ## 0.5.0+dual.20260811190000 - 2026-08-11
 
 - Added root-level `SKILL.md` as the Claude Skill entry point while preserving the Codex skill under `skills/interactive-mindmap-editor/SKILL.md`.
