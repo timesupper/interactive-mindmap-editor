@@ -1,17 +1,17 @@
 ---
 name: interactive-mindmap-editor
-description: Create, repair, and extend standalone interactive HTML mind map editors and XMind-compatible imports/exports. Use when Codex needs to turn user-provided text, Markdown, outlines, articles, book chapters, or notes into editable mind map data/HTML or .xmind files, export plugin JSON to XMind, import .xmind into plugin JSON, or fix editable node titles/subtitles, double-click editing, fullscreen presentation controls, collapse/expand hit areas, node overlap during editing, character-width wrapping, drag/click conflicts, and recursive add/edit/delete child-node behavior in HTML/CSS/JavaScript mind map files.
+description: Create, repair, and extend standalone interactive HTML mind map editors with Markdown and XMind-compatible imports/exports. Use when Codex needs to turn user-provided text, Markdown, outlines, articles, book chapters, or notes into editable mind map data/HTML, Markdown outlines, or .xmind files, export plugin JSON to Markdown/XMind, import Markdown/.xmind into plugin JSON, or fix editable node titles/subtitles, double-click editing, compact toolbar menus, fullscreen presentation controls, collapse/expand hit areas, node overlap during editing, character-width wrapping, drag/click conflicts, and recursive add/edit/delete child-node behavior in HTML/CSS/JavaScript mind map files.
 ---
 
 # Interactive Mindmap Editor
 
 ## Overview
 
-Use this skill to create or modify standalone HTML mind map editors where nodes are rendered as DOM elements and connected with SVG paths. It supports four related jobs: converting text into a mind map hierarchy, exporting that hierarchy to XMind-compatible `.xmind`, importing `.xmind` back into plugin JSON, and repairing interactive editing/folding/layout behavior in an existing mind map.
+Use this skill to create or modify standalone HTML mind map editors where nodes are rendered as DOM elements and connected with SVG paths. It supports related jobs: converting text or Markdown into a mind map hierarchy, exporting that hierarchy to Markdown or XMind-compatible `.xmind`, importing Markdown or `.xmind` back into plugin JSON, and repairing interactive editing/folding/layout behavior in an existing mind map.
 
 ## Workflow
 
-1. Decide whether the user wants text-to-mindmap creation, XMind export, XMind import, existing-editor repair, or a combination.
+1. Decide whether the user wants text-to-mindmap creation, Markdown import/export, XMind export, XMind import, existing-editor repair, or a combination.
 2. For existing HTML, locate node rendering, measurement, layout, edit, drag, context-menu, fullscreen, and collapse logic. Search for `createNodeEl`, `refreshNodeEl`, `measure`, `layout`, `relayout`, `beginEdit`, `addChild`, `deleteNode`, `toggleCollapse`, `requestFullscreen`, `fullscreenchange`, `mousedown`, `dblclick`, and `contextmenu`.
 3. Confirm the data model before changing behavior. Check whether nodes store `id`, `title`, `sub`, `type`, `color`, `children`, and `collapsed`.
 4. Keep edits scoped. Preserve the existing visual language and engine unless the user asks for a new app.
@@ -50,7 +50,110 @@ For structured Markdown/outlines, use the bundled script instead of hand-writing
 python scripts/text_to_mindmap_data.py input.md -o mindmap-data.json --root-title "主题"
 ```
 
+You can also use the explicit Markdown alias:
+
+```bash
+python scripts/markdown_to_mindmap_data.py input.md -o mindmap-data.json --root-title "主题"
+```
+
 For unstructured long prose, first reason about the hierarchy yourself, then either write the JSON directly or use the script as a rough first pass and refine the output.
+
+## Markdown Import And Export
+
+Use Markdown as an interchange format for outlines, Feishu documents, notes, and other text-first tools.
+
+Bundled scripts:
+
+```bash
+python scripts/markdown_to_mindmap_data.py input.md -o mindmap-data.json --root-title "主题"
+python scripts/mindmap_data_to_markdown.py mindmap-data.json -o outline.md
+```
+
+Mapping rules:
+
+- Markdown `#` heading can become the root title when the provided root title is the default.
+- Markdown headings, bullets, numbering, and indentation should preserve hierarchy.
+- Plugin root node -> Markdown `# 标题`.
+- Plugin `children` -> nested Markdown bullet list.
+- Plugin `sub` -> same-line subtitle after `：`.
+- Plugin `note` -> quoted Markdown lines under the node when present.
+- Keep Markdown output readable and text-first; do not include HTML-only layout, color, coordinates, or UI state.
+
+When generated standalone HTML contains import/export controls, include:
+
+```html
+<button id="importMarkdownBtn" title="导入 Markdown"><span>⬆</span>Markdown</button>
+<button id="exportMarkdownBtn" title="导出 Markdown"><span>⬇</span>Markdown</button>
+<input type="file" id="markdownInput" accept=".md,.markdown,.txt,text/markdown,text/plain">
+```
+
+HTML behavior:
+
+- `导出 Markdown` should serialize the current `rootNode.data` or equivalent live tree, not the original initial constant.
+- `导入 Markdown` should parse headings, bullets, numbering, and indentation into the same node data shape used by the editor.
+- After Markdown import, rebuild the tree, apply saved or default collapse state as appropriate, save the new state, and call `fitView()`.
+- Do not require a server or external library for basic Markdown outline import/export in standalone HTML.
+- Keep JSON and XMind import/export controls working after adding Markdown controls.
+
+## Compact Toolbar Menu
+
+When a standalone HTML mind map has many toolbar controls, group secondary actions behind a compact round menu button so the canvas stays readable.
+
+Use this behavior when the toolbar includes several of these controls: `展开`, `折叠`, `导入 Markdown`, `导出 Markdown`, `XMind`, `全屏展示`, and `适配`.
+
+- Place the round menu button directly above the always-visible zoom-in `+` button.
+- Keep zoom in, zoom out, and reset view visible as round controls.
+- Put secondary actions in a collapsible vertical menu panel.
+- Clicking the menu button toggles the secondary action panel.
+- Clicking the canvas or any area outside `.controls` should close the menu.
+- Preserve existing click and long-press behavior for `展开` and `折叠` inside the menu.
+- Preserve import/export, fullscreen, and fit-view behavior after moving buttons into the menu.
+- Use `aria-expanded`, `aria-controls`, and `aria-hidden` so the menu state is explicit.
+
+Recommended HTML shape:
+
+```html
+<div class="controls">
+  <div class="tool-menu" id="toolMenu">
+    <div class="tool-menu-panel" id="toolMenuPanel" aria-hidden="true">
+      <button id="expandBtn" title="点击展开一级，长按全部展开"><span>＋</span>展开</button>
+      <button id="collapseBtn" title="点击折叠一级，长按全部折叠"><span>－</span>折叠</button>
+      <button id="importMarkdownBtn" title="导入 Markdown 提纲"><span>⬆</span>导入 Markdown</button>
+      <button id="exportMarkdownBtn" title="导出 Markdown 提纲"><span>⬇</span>导出 Markdown</button>
+      <button id="xmindBtn" title="导出 XMind 文件"><span>⬇</span>XMind</button>
+      <button id="fullscreenBtn" title="全屏展示"><span>⛶</span>全屏展示</button>
+      <button id="fitBtn" title="适应画布"><span>⤢</span>适配</button>
+    </div>
+    <button id="toolMenuBtn" title="展开/折叠工具菜单" aria-expanded="false" aria-controls="toolMenuPanel">☰</button>
+  </div>
+  <button id="zoomInBtn" title="放大">＋</button>
+  <button id="zoomOutBtn" title="缩小">－</button>
+  <button id="resetBtn" title="重置视图">↺</button>
+</div>
+```
+
+Recommended behavior:
+
+```js
+const controlsEl = document.querySelector('.controls');
+const toolMenuBtn = document.getElementById('toolMenuBtn');
+const toolMenuPanel = document.getElementById('toolMenuPanel');
+
+function setToolMenuOpen(open) {
+  controlsEl.classList.toggle('menu-open', open);
+  toolMenuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  toolMenuPanel.setAttribute('aria-hidden', open ? 'false' : 'true');
+}
+
+toolMenuBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  setToolMenuOpen(!controlsEl.classList.contains('menu-open'));
+});
+
+window.addEventListener('click', (e) => {
+  if (!e.target.closest('.controls')) setToolMenuOpen(false);
+});
+```
 
 ## XMind Export
 
@@ -306,6 +409,7 @@ After changes, verify these behaviors in the local file or browser:
 - Generated `.xmind` packages contain root-level `content.json`, `metadata.json`, and `manifest.json`.
 - Imported `.xmind` files produce plugin JSON with `root -> part -> topic -> leaf` node types.
 - Generated HTML includes a `全屏展示` toolbar button, uses Fullscreen API when available, fills the display in fullscreen mode, and reveals an `X`/`×` exit button only when the mouse points to the top area.
+- Generated HTML with many toolbar controls groups secondary actions behind a round menu button above the visible zoom-in button.
 - Double-click title and subtitle both enter the same two-line editor.
 - Repeated double-click does not add extra rows.
 - Moving focus from title to subtitle does not save early.

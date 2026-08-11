@@ -1,18 +1,50 @@
 # Interactive Mindmap Editor
 
-Codex plugin for creating, repairing, importing, and exporting editable standalone HTML and XMind mind maps.
+Codex plugin for creating, repairing, importing, and exporting editable standalone HTML, Markdown, and XMind mind maps.
 
 ## What it does
 
 - Convert text, outlines, articles, and notes into mind map data.
+- Convert Markdown outlines to mind map JSON, and export mind map JSON back to Markdown outlines.
 - Export mind map JSON or text outlines to XMind-compatible `.xmind` files.
 - Import modern `.xmind` files back into editable mind map JSON.
 - Repair editable HTML mind map interactions.
 - Generate HTML mind maps with fullscreen presentation controls and a top-hover `X` exit button.
+- Group secondary HTML toolbar actions behind a compact round menu button when many controls are present.
 - Use incremental toolbar expand/collapse: click once for one level, long-press for all levels.
 - Support two-line node editing, fold/unfold hit areas, overlap-safe layout, wrapping, and recursive node add/edit/delete behavior.
 
-## XMind export
+## Markdown import/export
+
+Convert Markdown or structured text to plugin JSON:
+
+```powershell
+python .\skills\interactive-mindmap-editor\scripts\markdown_to_mindmap_data.py .\input.md -o .\mindmap-data.json --root-title "主题"
+```
+
+Convert plugin JSON back to a Markdown outline:
+
+```powershell
+python .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_markdown.py .\mindmap-data.json -o .\outline.md
+```
+
+Generated standalone HTML mind maps should include `导入 Markdown` and `导出 Markdown` controls when import/export controls are present.
+
+## HTML toolbar menu
+
+When a generated standalone HTML mind map has many controls, group secondary actions behind a compact round menu button placed above the visible zoom controls. Keep zoom in, zoom out, and reset view visible as round buttons.
+
+Recommended menu items:
+
+- `展开`
+- `折叠`
+- `导入 Markdown`
+- `导出 Markdown`
+- `XMind`
+- `全屏展示`
+- `适配`
+
+## XMind import/export
 
 Convert plugin JSON to `.xmind`:
 

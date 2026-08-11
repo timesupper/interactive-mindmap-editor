@@ -15,7 +15,10 @@
 - 修复点击标题误触发展开/折叠的问题，只在右侧箭头区域触发折叠。
 - 修复编辑节点时遮挡其他节点的问题。
 - 支持生成带“全屏展示”按键的 HTML，进入全屏后内容铺满屏幕，鼠标指向顶部时显示 `X` 退出按键。
+- 支持在 HTML 页面中把次要工具按钮收纳到圆形菜单按钮中，减少右下角按钮占用空间。
 - 支持工具栏展开/折叠分层操作：点击一次只展开或折叠一级，长按则全部展开或全部折叠。
+- 支持 Markdown 提纲导入为思维导图 JSON，也支持将思维导图 JSON 导出为 Markdown 提纲。
+- 支持生成带“导入 Markdown”和“导出 Markdown”按键的 HTML 页面。
 - 支持将插件 JSON 或文本导出为 XMind 可打开的 `.xmind` 文件。
 - 支持识别现代 `.xmind` 文件，并转换回插件可用的思维导图 JSON。
 
@@ -31,6 +34,8 @@ interactive-mindmap-editor/
 │       ├── agents/
 │       │   └── openai.yaml
 │       └── scripts/
+│           ├── markdown_to_mindmap_data.py
+│           ├── mindmap_data_to_markdown.py
 │           ├── mindmap_data_to_xmind.py
 │           ├── text_to_mindmap_data.py
 │           ├── text_to_xmind.py
@@ -157,6 +162,14 @@ codex plugin list
 - 长按“展开”：全部展开。
 - 长按“折叠”：全部折叠。
 
+生成的 HTML 如果包含较多工具按钮，应采用紧凑工具菜单：
+
+- 圆形菜单按钮放在右下角缩放 `+` 按钮之上。
+- 点击菜单按钮展开或折叠次要工具按钮。
+- 次要工具按钮包括 `展开`、`折叠`、`导入 Markdown`、`导出 Markdown`、`XMind`、`全屏展示`、`适配`。
+- 缩放 `+`、缩放 `-`、重置视图应保持常驻显示。
+- 点击画布空白区域后，菜单应自动收起。
+
 ## 文本转思维导图脚本
 
 插件包含一个脚本：
@@ -172,6 +185,31 @@ python .\skills\interactive-mindmap-editor\scripts\text_to_mindmap_data.py .\inp
 ```
 
 生成的 JSON 可用于导入或替换现有 HTML 思维导图中的数据对象。
+
+## Markdown 导入/导出
+
+### Markdown 提纲导入为思维导图 JSON
+
+```powershell
+python .\skills\interactive-mindmap-editor\scripts\markdown_to_mindmap_data.py .\input.md -o .\mindmap-data.json --root-title "主题"
+```
+
+该脚本会识别 Markdown 标题、项目符号、编号列表和缩进层级，并生成插件 HTML 可用的 `root -> part -> topic -> leaf` JSON。
+
+### 思维导图 JSON 导出为 Markdown 提纲
+
+```powershell
+python .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_markdown.py .\mindmap-data.json -o .\outline.md
+```
+
+导出的 Markdown 会使用一级标题表示根节点，使用缩进列表表示子节点层级；节点副标题会接在同一行，节点批注会尽量保留为引用块。
+
+### HTML 页面中的 Markdown 按钮
+
+后续由本插件生成或修复的 HTML 页面，如果已经有导入/导出工具栏，应提供：
+
+- `导入 Markdown`：选择 `.md` / `.markdown` / `.txt` 文件后，将 Markdown 提纲转换成当前思维导图。
+- `导出 Markdown`：将当前页面中的思维导图导出为 `.md` 文件。
 
 ## XMind 文件支持
 

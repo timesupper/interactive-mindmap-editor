@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.4.1+codex.20260811180500 - 2026-08-11
+
+- Documented compact toolbar menu behavior for generated standalone HTML mind maps.
+- Recommended grouping secondary tools such as expand/collapse, Markdown import/export, XMind export, fullscreen, and fit view behind a round menu button.
+- Kept zoom in, zoom out, and reset view as always-visible round controls.
+
+## 0.4.0+codex.20260811172000 - 2026-08-11
+
+- Added explicit Markdown import script `markdown_to_mindmap_data.py`.
+- Added Markdown outline export script `mindmap_data_to_markdown.py`.
+- Documented Markdown outline to mind map JSON and mind map JSON to Markdown workflows.
+- Updated generated HTML guidance to include `导入 Markdown` and `导出 Markdown` controls.
+
 ## 0.3.0+codex.20260811163605 - 2026-08-11
 
 - Document fullscreen presentation requirements for future generated HTML mind maps.
