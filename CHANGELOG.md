@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1+dual.20260811 - 2026-08-11
+
+- Add Claude Skill compatibility: root-level `SKILL.md` with Claude-style frontmatter and Chinese trigger words.
+- Add `install-codex.ps1` one-click install script for Codex (copies to plugins dir, registers marketplace, installs plugin).
+- Update README to document the dual-compatible (Claude Skill + Codex plugin) directory layout.
+- Keep original Codex plugin structure unchanged under `skills/interactive-mindmap-editor/` and `.codex-plugin/`.
+
 ## 0.3.0+codex.20260811163605 - 2026-08-11
 
 - Document fullscreen presentation requirements for future generated HTML mind maps.

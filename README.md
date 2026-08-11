@@ -1,83 +1,88 @@
-# Interactive Mindmap Editor
+# Interactive Mindmap Editor（双兼容 Skill / Codex 插件）
 
-Codex plugin for creating, repairing, importing, and exporting editable standalone HTML and XMind mind maps.
+将思维导图能力做成 **Claude Skill 与 Codex 插件双兼容** 的目录，用于创建、修复、导入和导出可编辑的 HTML/XMind 思维导图。
 
-## What it does
+## 功能
 
-- Convert text, outlines, articles, and notes into mind map data.
-- Export mind map JSON or text outlines to XMind-compatible `.xmind` files.
-- Import modern `.xmind` files back into editable mind map JSON.
-- Repair editable HTML mind map interactions.
-- Generate HTML mind maps with fullscreen presentation controls and a top-hover `X` exit button.
-- Use incremental toolbar expand/collapse: click once for one level, long-press for all levels.
-- Support two-line node editing, fold/unfold hit areas, overlap-safe layout, wrapping, and recursive node add/edit/delete behavior.
+- 将文本、Markdown、文章、笔记、章节内容整理成思维导图层级结构（JSON）。
+- 生成可编辑的独立 HTML 思维导图（支持双击编辑、右键增删、批注、折叠、拖拽、全屏展示）。
+- 将 JSON 或文本导出为 XMind 可打开的 `.xmind` 文件。
+- 识别现代 `.xmind` 文件并转换回思维导图 JSON。
+- 修复 HTML 思维导图的节点编辑、折叠、布局、重叠和层级操作问题。
 
-## XMind export
+## 目录结构（双兼容）
 
-Convert plugin JSON to `.xmind`:
-
-```powershell
-python .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_xmind.py .\mindmap-data.json -o .\output.xmind
+```text
+claude-skill-interactive-mindmap/
+├── .codex-plugin/
+│   └── plugin.json                          # Codex 插件清单
+├── SKILL.md                                 # Claude 技能定义（根目录，供 Claude 读取）
+├── README.md                                # 本说明
+├── install-codex.ps1                        # Codex 一键安装脚本（PowerShell）
+└── skills/
+    └── interactive-mindmap-editor/
+        ├── SKILL.md                         # Codex 技能定义（供 Codex 读取）
+        ├── agents/
+        │   └── openai.yaml                  # Codex agent 接口描述
+        └── scripts/
+            ├── text_to_mindmap_data.py      # 文本/Markdown → 思维导图 JSON
+            ├── mindmap_data_to_xmind.py     # JSON → .xmind
+            ├── text_to_xmind.py             # 文本/Markdown → .xmind
+            └── xmind_to_mindmap_data.py     # .xmind → JSON
 ```
 
-Convert Markdown or structured text directly to `.xmind`:
+## 在 Claude 中使用
+
+将 `claude-skill-interactive-mindmap` 文件夹放到 Claude 能访问的项目目录中。当你的请求涉及"生成思维导图""把这段文字做成思维导图""导出 XMind""修复思维导图 HTML"等任务时，Claude 会自动读取根目录 `SKILL.md` 并遵循其中的工作流。也可在对话中说"使用 interactive-mindmap-editor 技能"手动加载。
+
+## 在 Codex 中使用
+
+在 Windows 上以管理员身份运行安装脚本：
 
 ```powershell
-python .\skills\interactive-mindmap-editor\scripts\text_to_xmind.py .\input.md -o .\output.xmind --root-title "主题"
+cd claude-skill-interactive-mindmap
+.\install-codex.ps1
 ```
 
-Import `.xmind` back to plugin JSON:
+脚本会自动：
+1. 复制插件到 `$HOME\plugins\interactive-mindmap-editor`
+2. 写入 personal marketplace（UTF-8 无 BOM）
+3. 注册并安装到 Codex：`codex plugin marketplace add "$HOME"` + `codex plugin add interactive-mindmap-editor@personal`
+
+验证：
 
 ```powershell
-python .\skills\interactive-mindmap-editor\scripts\xmind_to_mindmap_data.py .\input.xmind -o .\mindmap-data.json
+codex plugin list
+# 应看到 interactive-mindmap-editor@personal
 ```
 
-## Version history
+## 脚本直接调用
 
-See [CHANGELOG.md](CHANGELOG.md) for version iteration notes.
+Python 脚本与平台无关，可直接在命令行使用（脚本位于 `skills/interactive-mindmap-editor/scripts/`）：
 
-## Install in another Codex environment
+```bash
+# 文本 → 思维导图 JSON
+python skills/interactive-mindmap-editor/scripts/text_to_mindmap_data.py input.md -o mindmap-data.json --root-title "主题"
 
-1. Clone this repository into the user's plugin folder:
+# JSON → XMind
+python skills/interactive-mindmap-editor/scripts/mindmap_data_to_xmind.py mindmap-data.json -o output.xmind
 
-   ```powershell
-   New-Item -ItemType Directory -Force "$HOME\plugins" | Out-Null
-   git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\plugins\interactive-mindmap-editor"
-   ```
+# 文本 → XMind
+python skills/interactive-mindmap-editor/scripts/text_to_xmind.py input.md -o output.xmind --root-title "主题"
 
-2. Create or update the personal marketplace file as UTF-8 without BOM:
+# XMind → JSON
+python skills/interactive-mindmap-editor/scripts/xmind_to_mindmap_data.py input.xmind -o mindmap-data.json
+```
 
-   ```powershell
-   New-Item -ItemType Directory -Force "$HOME\.agents\plugins" | Out-Null
-   $marketplacePath = "$HOME\.agents\plugins\marketplace.json"
-   $marketplace = [ordered]@{
-     name = "personal"
-     interface = [ordered]@{ displayName = "Personal" }
-     plugins = @(
-       [ordered]@{
-         name = "interactive-mindmap-editor"
-         source = [ordered]@{
-           source = "local"
-           path = "./plugins/interactive-mindmap-editor"
-         }
-         policy = [ordered]@{
-           installation = "AVAILABLE"
-           authentication = "ON_INSTALL"
-         }
-         category = "Productivity"
-       }
-     )
-   }
-   $json = $marketplace | ConvertTo-Json -Depth 10
-   $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-   [System.IO.File]::WriteAllText($marketplacePath, $json, $utf8NoBom)
-   ```
+## 双兼容说明
 
-3. Register the marketplace root and install the plugin:
+同一份 `scripts/` 被 Claude 和 Codex 共享，避免重复维护：
 
-   ```powershell
-   codex plugin marketplace add "$HOME"
-   codex plugin add interactive-mindmap-editor@personal
-   ```
+- **Claude** 读取根目录 `SKILL.md`（frontmatter 含中文触发词），脚本路径指向 `skills/interactive-mindmap-editor/scripts/`。
+- **Codex** 读取 `.codex-plugin/plugin.json` 定位技能目录，再读 `skills/interactive-mindmap-editor/SKILL.md`，脚本路径相对该目录为 `scripts/`。
 
-If Codex reports `plugin was not found in marketplace personal`, check that the marketplace file has no UTF-8 BOM and that `codex plugin marketplace list` includes `personal`.
+两个 SKILL.md 的差异：Claude 版 frontmatter 用 `name` + `description`（含中文触发词），并新增「Notes（批注）」章节；Codex 版保留原始 Codex 风格 frontmatter 与工作流说明。
+
+## 参考实现
+
+项目文件夹中的 `00_序言/序言思维导图.html` 是一个完整的可编辑 HTML 思维导图参考实现，包含本技能描述的全部交互能力。
