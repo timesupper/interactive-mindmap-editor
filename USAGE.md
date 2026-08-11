@@ -2,11 +2,14 @@
 
 ## 插件功能
 
-`interactive-mindmap-editor` 是一个 Codex 插件，用于创建、修复、导入和导出可编辑的 HTML/XMind 思维导图。
+`interactive-mindmap-editor` 是一个 Codex / Claude 双兼容工具包，用于创建、修复、导入和导出可编辑的 HTML、Markdown、XMind 思维导图。
 
 主要能力：
 
 - 将文本、Markdown、文章、笔记、章节内容整理成思维导图层级结构。
+- 支持作为 Codex personal plugin 使用。
+- 支持作为 Claude personal skill 或 project skill 使用。
+- 支持直接调用 Python 脚本使用。
 - 生成适用于交互式 HTML 思维导图的数据。
 - 修复 HTML 思维导图的节点编辑、折叠、布局和层级操作问题。
 - 支持标题/副标题两行编辑。
@@ -28,6 +31,9 @@
 interactive-mindmap-editor/
 ├── .codex-plugin/
 │   └── plugin.json
+├── SKILL.md
+├── CLAUDE.md
+├── install-codex.ps1
 ├── skills/
 │   └── interactive-mindmap-editor/
 │       ├── SKILL.md
@@ -45,18 +51,29 @@ interactive-mindmap-editor/
 └── USAGE.md
 ```
 
-## 在新系统的 PowerShell 中安装
+入口说明：
+
+- Codex 使用 `.codex-plugin/plugin.json` 和 `skills/interactive-mindmap-editor/SKILL.md`。
+- Claude Skill 使用根目录 `SKILL.md`。
+- Claude Code 在本仓库内工作时还会读取 `CLAUDE.md`。
+- Codex 和 Claude 共享同一套 `scripts/` 脚本，避免重复维护。
+
+## 在 Codex 中安装
 
 以下命令假设你要从 GitHub 安装到当前 Windows 用户的本地插件目录。
 
-### 1. 克隆插件仓库
+### 方式一：一键安装
 
 ```powershell
 New-Item -ItemType Directory -Force "$HOME\plugins" | Out-Null
 git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\plugins\interactive-mindmap-editor"
+cd "$HOME\plugins\interactive-mindmap-editor"
+.\install-codex.ps1
 ```
 
-### 2. 创建或更新个人 marketplace
+### 方式二：手动安装
+
+如果不使用安装脚本，可以手动创建 personal marketplace。
 
 ```powershell
 New-Item -ItemType Directory -Force "$HOME\.agents\plugins" | Out-Null
@@ -119,13 +136,81 @@ codex plugin list
 interactive-mindmap-editor@personal
 ```
 
-### 4. 安装插件
+安装插件：
 
 ```powershell
 codex plugin add interactive-mindmap-editor@personal
 ```
 
 安装完成后，建议新开一个 Codex 任务，让插件和 Skill 被重新加载。
+
+## 在 Claude 中安装
+
+Claude 有两种推荐安装方式。
+
+### 方式一：个人 Skill
+
+适合多个项目共用同一份思维导图能力。
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.claude\skills" | Out-Null
+git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\.claude\skills\interactive-mindmap-editor"
+```
+
+安装后，Claude 可通过该目录根部的 `SKILL.md` 识别此技能。
+
+### 方式二：项目 Skill
+
+适合某个项目需要固定版本，随项目一起迁移。
+
+```powershell
+cd "E:\path\to\your\project"
+New-Item -ItemType Directory -Force ".\.claude\skills" | Out-Null
+git clone https://github.com/timesupper/interactive-mindmap-editor.git ".\.claude\skills\interactive-mindmap-editor"
+```
+
+项目 Skill 的好处是：这个项目带着 `.claude\skills\interactive-mindmap-editor` 迁移到其他机器后，Claude 仍可读取同一份技能说明和脚本。
+
+## Codex 和 Claude 的项目迁移方式
+
+### Codex 项目迁移
+
+Codex 插件更适合“机器级安装”：
+
+- 在每台机器上安装一次插件。
+- 不需要把插件复制到每个项目。
+- 项目内只需要保留实际产物，例如 `.html`、`.json`、`.md`、`.xmind`。
+- 如果某个项目必须锁定插件版本，可以把本仓库复制或克隆到项目内，并在请求中明确让 Codex 使用该路径下的脚本。
+
+换设备时：
+
+```powershell
+cd "$HOME\plugins\interactive-mindmap-editor"
+git pull
+.\install-codex.ps1
+```
+
+### Claude 项目迁移
+
+Claude 有两种迁移策略：
+
+- 个人 Skill：每台机器安装一次，多个项目共用。
+- 项目 Skill：将本仓库放在项目的 `.claude\skills\interactive-mindmap-editor` 下，随项目一起迁移。
+
+如果你希望项目在任何机器上打开都带着同一版本的能力，使用项目 Skill。
+
+如果你希望所有项目共用最新版，使用个人 Skill。
+
+### 思维导图产物迁移
+
+无论使用 Codex 还是 Claude，项目迁移时都应保留：
+
+- 可编辑 HTML：`*.html`
+- 思维导图数据：`*.json`
+- Markdown 提纲：`*.md`
+- XMind 文件：`*.xmind`
+
+这些是项目产物；插件/Skill 是工具。
 
 ## 验证安装
 

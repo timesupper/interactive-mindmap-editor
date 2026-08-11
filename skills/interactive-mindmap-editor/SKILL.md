@@ -9,6 +9,8 @@ description: Create, repair, and extend standalone interactive HTML mind map edi
 
 Use this skill to create or modify standalone HTML mind map editors where nodes are rendered as DOM elements and connected with SVG paths. It supports related jobs: converting text or Markdown into a mind map hierarchy, exporting that hierarchy to Markdown or XMind-compatible `.xmind`, importing Markdown or `.xmind` back into plugin JSON, and repairing interactive editing/folding/layout behavior in an existing mind map.
 
+This repository is dual-compatible. Codex loads this file through `.codex-plugin/plugin.json`; Claude loads the root `SKILL.md` when the repository is installed as a Claude skill; Claude Code may also read root `CLAUDE.md` as project memory. Keep these entry points aligned when behavior changes.
+
 ## Workflow
 
 1. Decide whether the user wants text-to-mindmap creation, Markdown import/export, XMind export, XMind import, existing-editor repair, or a combination.

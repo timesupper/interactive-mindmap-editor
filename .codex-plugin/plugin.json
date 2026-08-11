@@ -1,7 +1,7 @@
 {
   "name": "interactive-mindmap-editor",
-  "version": "0.4.1+codex.20260811180500",
-  "description": "Create, repair, present, import, and export interactive HTML, Markdown, and XMind mind maps.",
+  "version": "0.5.0+dual.20260811190000",
+  "description": "Create, repair, present, import, and export interactive HTML, Markdown, and XMind mind maps for Codex and Claude workflows.",
   "author": {
     "name": "Local developer"
   },
@@ -9,7 +9,7 @@
   "interface": {
     "displayName": "Interactive Mindmap Editor",
     "shortDescription": "Create, present, import, and export HTML/Markdown/XMind mind maps.",
-    "longDescription": "Helps Codex convert text, Markdown, outlines, articles, and notes into editable standalone HTML mind maps, Markdown outlines, or XMind-compatible .xmind files, import Markdown and .xmind files back into plugin JSON, and repair interaction issues such as compact toolbar menus, fullscreen presentation, incremental expand/collapse controls, two-line editing, collapse hit areas, overlap, wrapping, and recursive node operations.",
+    "longDescription": "Helps Codex convert text, Markdown, outlines, articles, and notes into editable standalone HTML mind maps, Markdown outlines, or XMind-compatible .xmind files, import Markdown and .xmind files back into plugin JSON, and repair interaction issues such as compact toolbar menus, fullscreen presentation, incremental expand/collapse controls, two-line editing, collapse hit areas, overlap, wrapping, and recursive node operations. The same repository also includes Claude Skill and Claude Code project-memory entry points.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [],

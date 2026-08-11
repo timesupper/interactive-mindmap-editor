@@ -1,9 +1,12 @@
 # Interactive Mindmap Editor
 
-Codex plugin for creating, repairing, importing, and exporting editable standalone HTML, Markdown, and XMind mind maps.
+Dual-compatible toolkit for Codex and Claude that creates, repairs, imports, and exports editable standalone HTML, Markdown, and XMind mind maps.
 
 ## What it does
 
+- Works as a Codex personal plugin.
+- Works as a Claude personal or project skill.
+- Works as a plain script toolkit when called directly from Python.
 - Convert text, outlines, articles, and notes into mind map data.
 - Convert Markdown outlines to mind map JSON, and export mind map JSON back to Markdown outlines.
 - Export mind map JSON or text outlines to XMind-compatible `.xmind` files.
@@ -13,6 +16,39 @@ Codex plugin for creating, repairing, importing, and exporting editable standalo
 - Group secondary HTML toolbar actions behind a compact round menu button when many controls are present.
 - Use incremental toolbar expand/collapse: click once for one level, long-press for all levels.
 - Support two-line node editing, fold/unfold hit areas, overlap-safe layout, wrapping, and recursive node add/edit/delete behavior.
+
+## Compatibility layout
+
+```text
+interactive-mindmap-editor/
+├── .codex-plugin/
+│   └── plugin.json
+├── SKILL.md
+├── CLAUDE.md
+├── install-codex.ps1
+├── README.md
+├── USAGE.md
+├── CHANGELOG.md
+└── skills/
+    └── interactive-mindmap-editor/
+        ├── SKILL.md
+        ├── agents/
+        │   └── openai.yaml
+        └── scripts/
+            ├── markdown_to_mindmap_data.py
+            ├── mindmap_data_to_markdown.py
+            ├── mindmap_data_to_xmind.py
+            ├── text_to_mindmap_data.py
+            ├── text_to_xmind.py
+            └── xmind_to_mindmap_data.py
+```
+
+Entry points:
+
+- Codex reads `.codex-plugin/plugin.json`, then `skills/interactive-mindmap-editor/SKILL.md`.
+- Claude Skill reads root `SKILL.md` when this repository is installed as a skill folder.
+- Claude Code also reads `CLAUDE.md` when working inside this repository.
+- All entry points share the same scripts under `skills/interactive-mindmap-editor/scripts/`.
 
 ## Markdown import/export
 
@@ -68,48 +104,105 @@ python .\skills\interactive-mindmap-editor\scripts\xmind_to_mindmap_data.py .\in
 
 See [CHANGELOG.md](CHANGELOG.md) for version iteration notes.
 
-## Install in another Codex environment
+## Install in Codex
 
-1. Clone this repository into the user's plugin folder:
+Recommended PowerShell install:
 
-   ```powershell
-   New-Item -ItemType Directory -Force "$HOME\plugins" | Out-Null
-   git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\plugins\interactive-mindmap-editor"
-   ```
+```powershell
+New-Item -ItemType Directory -Force "$HOME\plugins" | Out-Null
+git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\plugins\interactive-mindmap-editor"
+cd "$HOME\plugins\interactive-mindmap-editor"
+.\install-codex.ps1
+```
 
-2. Create or update the personal marketplace file as UTF-8 without BOM:
+Manual Codex install:
 
-   ```powershell
-   New-Item -ItemType Directory -Force "$HOME\.agents\plugins" | Out-Null
-   $marketplacePath = "$HOME\.agents\plugins\marketplace.json"
-   $marketplace = [ordered]@{
-     name = "personal"
-     interface = [ordered]@{ displayName = "Personal" }
-     plugins = @(
-       [ordered]@{
-         name = "interactive-mindmap-editor"
-         source = [ordered]@{
-           source = "local"
-           path = "./plugins/interactive-mindmap-editor"
-         }
-         policy = [ordered]@{
-           installation = "AVAILABLE"
-           authentication = "ON_INSTALL"
-         }
-         category = "Productivity"
-       }
-     )
-   }
-   $json = $marketplace | ConvertTo-Json -Depth 10
-   $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-   [System.IO.File]::WriteAllText($marketplacePath, $json, $utf8NoBom)
-   ```
+```powershell
+New-Item -ItemType Directory -Force "$HOME\plugins" | Out-Null
+git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\plugins\interactive-mindmap-editor"
 
-3. Register the marketplace root and install the plugin:
+$marketplacePath = "$HOME\.agents\plugins\marketplace.json"
+New-Item -ItemType Directory -Force "$HOME\.agents\plugins" | Out-Null
 
-   ```powershell
-   codex plugin marketplace add "$HOME"
-   codex plugin add interactive-mindmap-editor@personal
-   ```
+$marketplace = [ordered]@{
+  name = "personal"
+  interface = [ordered]@{ displayName = "Personal" }
+  plugins = @(
+    [ordered]@{
+      name = "interactive-mindmap-editor"
+      source = [ordered]@{
+        source = "local"
+        path = "./plugins/interactive-mindmap-editor"
+      }
+      policy = [ordered]@{
+        installation = "AVAILABLE"
+        authentication = "ON_INSTALL"
+      }
+      category = "Productivity"
+    }
+  )
+}
 
-If Codex reports `plugin was not found in marketplace personal`, check that the marketplace file has no UTF-8 BOM and that `codex plugin marketplace list` includes `personal`.
+$json = $marketplace | ConvertTo-Json -Depth 10
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($marketplacePath, $json, $utf8NoBom)
+
+codex plugin marketplace add "$HOME"
+codex plugin add interactive-mindmap-editor@personal
+```
+
+If Codex reports `plugin was not found in marketplace personal`, check that `marketplace.json` has no UTF-8 BOM and that `codex plugin marketplace list` includes `personal`.
+
+Codex project portability:
+
+- Install once per machine for normal use; every Codex task can then use the plugin.
+- For another device, run the install commands on that device.
+- For a project-pinned copy, clone this repository into the project and ask Codex to use scripts from that local path.
+
+## Install in Claude
+
+Personal Claude skill install on Windows:
+
+```powershell
+New-Item -ItemType Directory -Force "$HOME\.claude\skills" | Out-Null
+git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\.claude\skills\interactive-mindmap-editor"
+```
+
+Project-local Claude skill install:
+
+```powershell
+cd "E:\path\to\your\project"
+New-Item -ItemType Directory -Force ".\.claude\skills" | Out-Null
+git clone https://github.com/timesupper/interactive-mindmap-editor.git ".\.claude\skills\interactive-mindmap-editor"
+```
+
+Claude project portability:
+
+- Use personal skill install when many projects should share the same latest behavior.
+- Use project-local install when a project must carry a pinned copy of the skill.
+- Move mind map artifacts (`.html`, `.json`, `.md`, `.xmind`) with the project.
+- Keep root `SKILL.md` in the skill folder; Claude uses it as the skill entry.
+
+## Updating
+
+Codex update:
+
+```powershell
+cd "$HOME\plugins\interactive-mindmap-editor"
+git pull
+.\install-codex.ps1
+```
+
+Claude personal skill update:
+
+```powershell
+cd "$HOME\.claude\skills\interactive-mindmap-editor"
+git pull
+```
+
+Claude project skill update:
+
+```powershell
+cd "E:\path\to\your\project\.claude\skills\interactive-mindmap-editor"
+git pull
+```

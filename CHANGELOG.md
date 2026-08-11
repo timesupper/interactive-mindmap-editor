@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0+dual.20260811190000 - 2026-08-11
+
+- Added root-level `SKILL.md` as the Claude Skill entry point while preserving the Codex skill under `skills/interactive-mindmap-editor/SKILL.md`.
+- Expanded `CLAUDE.md` into a Claude Code project-memory guide for this repository.
+- Added `install-codex.ps1` for one-command Codex personal plugin installation.
+- Documented Codex and Claude installation paths separately.
+- Documented project portability rules for Codex plugins, Claude personal skills, Claude project skills, and mind map artifacts.
+- Preserved Markdown import/export scripts and compact toolbar menu guidance from the 0.4.x line.
+
 ## 0.4.1+codex.20260811180500 - 2026-08-11
 
 - Documented compact toolbar menu behavior for generated standalone HTML mind maps.
