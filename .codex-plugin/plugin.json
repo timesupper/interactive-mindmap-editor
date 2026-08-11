@@ -1,6 +1,6 @@
 {
   "name": "interactive-mindmap-editor",
-  "version": "0.2.0+codex.20260811104810",
+  "version": "0.2.1+codex.20260811111423",
   "description": "Create, repair, import, and export interactive HTML and XMind mind maps.",
   "author": {
     "name": "Local developer"

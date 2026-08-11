@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1+codex.20260811111423 - 2026-08-11
+
+- Clarified new-system installation steps for Codex App and Codex CLI.
+- Documented `codex plugin marketplace add "$HOME"` for registering the personal marketplace root.
+- Replaced marketplace setup examples with UTF-8 without BOM PowerShell writing logic.
+- Added troubleshooting notes for `plugin was not found in marketplace personal` and invalid marketplace JSON errors.
+
 ## 0.2.0+codex.20260811104810 - 2026-08-11
 
 - Added `.xmind` import support through `xmind_to_mindmap_data.py`.

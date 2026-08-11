@@ -36,14 +36,46 @@ See [CHANGELOG.md](CHANGELOG.md) for version iteration notes.
 
 ## Install in another Codex environment
 
-1. Clone or copy this repository into a local plugin folder, for example:
+1. Clone this repository into the user's plugin folder:
 
-   `~/plugins/interactive-mindmap-editor`
+   ```powershell
+   New-Item -ItemType Directory -Force "$HOME\plugins" | Out-Null
+   git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\plugins\interactive-mindmap-editor"
+   ```
 
-2. Add it to a local marketplace entry whose source path points to this plugin folder.
+2. Create or update the personal marketplace file as UTF-8 without BOM:
 
-3. Install it from that marketplace:
+   ```powershell
+   New-Item -ItemType Directory -Force "$HOME\.agents\plugins" | Out-Null
+   $marketplacePath = "$HOME\.agents\plugins\marketplace.json"
+   $marketplace = [ordered]@{
+     name = "personal"
+     interface = [ordered]@{ displayName = "Personal" }
+     plugins = @(
+       [ordered]@{
+         name = "interactive-mindmap-editor"
+         source = [ordered]@{
+           source = "local"
+           path = "./plugins/interactive-mindmap-editor"
+         }
+         policy = [ordered]@{
+           installation = "AVAILABLE"
+           authentication = "ON_INSTALL"
+         }
+         category = "Productivity"
+       }
+     )
+   }
+   $json = $marketplace | ConvertTo-Json -Depth 10
+   $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+   [System.IO.File]::WriteAllText($marketplacePath, $json, $utf8NoBom)
+   ```
 
-   `codex plugin add interactive-mindmap-editor@personal`
+3. Register the marketplace root and install the plugin:
 
-For a personal marketplace, Codex normally reads `~/.agents/plugins/marketplace.json`.
+   ```powershell
+   codex plugin marketplace add "$HOME"
+   codex plugin add interactive-mindmap-editor@personal
+   ```
+
+If Codex reports `plugin was not found in marketplace personal`, check that the marketplace file has no UTF-8 BOM and that `codex plugin marketplace list` includes `personal`.

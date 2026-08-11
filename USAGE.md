@@ -38,7 +38,7 @@ interactive-mindmap-editor/
 └── USAGE.md
 ```
 
-## 在 PowerShell 中安装
+## 在新系统的 PowerShell 中安装
 
 以下命令假设你要从 GitHub 安装到当前 Windows 用户的本地插件目录。
 
@@ -51,46 +51,68 @@ git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\pl
 
 ### 2. 创建或更新个人 marketplace
 
-如果 `$HOME\.agents\plugins\marketplace.json` 不存在，先创建它：
-
 ```powershell
 New-Item -ItemType Directory -Force "$HOME\.agents\plugins" | Out-Null
-@'
-{
-  "name": "personal",
-  "interface": {
-    "displayName": "Personal"
-  },
-  "plugins": []
+$marketplacePath = "$HOME\.agents\plugins\marketplace.json"
+
+$marketplace = [ordered]@{
+  name = "personal"
+  interface = [ordered]@{
+    displayName = "Personal"
+  }
+  plugins = @(
+    [ordered]@{
+      name = "interactive-mindmap-editor"
+      source = [ordered]@{
+        source = "local"
+        path = "./plugins/interactive-mindmap-editor"
+      }
+      policy = [ordered]@{
+        installation = "AVAILABLE"
+        authentication = "ON_INSTALL"
+      }
+      category = "Productivity"
+    }
+  )
 }
-'@ | Set-Content "$HOME\.agents\plugins\marketplace.json" -Encoding UTF8
+
+$json = $marketplace | ConvertTo-Json -Depth 10
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($marketplacePath, $json, $utf8NoBom)
 ```
 
-然后加入插件条目：
+注意：`marketplace.json` 必须写成 UTF-8 无 BOM。不要用 `Set-Content -Encoding UTF8` 生成该文件，否则部分 Codex CLI 版本可能报：
+
+```text
+plugin `interactive-mindmap-editor` was not found in marketplace `personal`
+```
+
+或：
+
+```text
+invalid marketplace file: expected value at line 1 column 1
+```
+
+### 3. 注册 marketplace
 
 ```powershell
-$marketplacePath = "$HOME\.agents\plugins\marketplace.json"
-$marketplace = Get-Content $marketplacePath -Raw | ConvertFrom-Json
-
-$entry = [pscustomobject]@{
-  name = "interactive-mindmap-editor"
-  source = [pscustomobject]@{
-    source = "local"
-    path = "./plugins/interactive-mindmap-editor"
-  }
-  policy = [pscustomobject]@{
-    installation = "AVAILABLE"
-    authentication = "ON_INSTALL"
-  }
-  category = "Productivity"
-}
-
-$marketplace.plugins = @($marketplace.plugins | Where-Object { $_.name -ne "interactive-mindmap-editor" })
-$marketplace.plugins += $entry
-$marketplace | ConvertTo-Json -Depth 10 | Set-Content $marketplacePath -Encoding UTF8
+codex plugin marketplace add "$HOME"
 ```
 
-### 3. 安装插件
+检查是否识别成功：
+
+```powershell
+codex plugin marketplace list
+codex plugin list
+```
+
+`codex plugin list` 中应能看到：
+
+```text
+interactive-mindmap-editor@personal
+```
+
+### 4. 安装插件
 
 ```powershell
 codex plugin add interactive-mindmap-editor@personal
