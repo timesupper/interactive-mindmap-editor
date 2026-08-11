@@ -8,6 +8,8 @@ Codex plugin for creating, repairing, importing, and exporting editable standalo
 - Export mind map JSON or text outlines to XMind-compatible `.xmind` files.
 - Import modern `.xmind` files back into editable mind map JSON.
 - Repair editable HTML mind map interactions.
+- Generate HTML mind maps with fullscreen presentation controls and a top-hover `X` exit button.
+- Use incremental toolbar expand/collapse: click once for one level, long-press for all levels.
 - Support two-line node editing, fold/unfold hit areas, overlap-safe layout, wrapping, and recursive node add/edit/delete behavior.
 
 ## XMind export

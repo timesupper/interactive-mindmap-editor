@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0+codex.20260811163605 - 2026-08-11
+
+- Document fullscreen presentation requirements for future generated HTML mind maps.
+- Require a `全屏展示` toolbar button, full-screen content layout, and a top-hover `X` exit button.
+- Document incremental toolbar expand/collapse behavior: short-click changes one level, long-press changes all levels.
+
 ## 0.2.1+codex.20260811111423 - 2026-08-11
 
 - Clarified new-system installation steps for Codex App and Codex CLI.

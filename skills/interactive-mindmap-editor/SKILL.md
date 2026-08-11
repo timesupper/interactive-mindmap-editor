@@ -1,6 +1,6 @@
 ---
 name: interactive-mindmap-editor
-description: Create, repair, and extend standalone interactive HTML mind map editors and XMind-compatible imports/exports. Use when Codex needs to turn user-provided text, Markdown, outlines, articles, book chapters, or notes into editable mind map data/HTML or .xmind files, export plugin JSON to XMind, import .xmind into plugin JSON, or fix editable node titles/subtitles, double-click editing, collapse/expand hit areas, node overlap during editing, character-width wrapping, drag/click conflicts, and recursive add/edit/delete child-node behavior in HTML/CSS/JavaScript mind map files.
+description: Create, repair, and extend standalone interactive HTML mind map editors and XMind-compatible imports/exports. Use when Codex needs to turn user-provided text, Markdown, outlines, articles, book chapters, or notes into editable mind map data/HTML or .xmind files, export plugin JSON to XMind, import .xmind into plugin JSON, or fix editable node titles/subtitles, double-click editing, fullscreen presentation controls, collapse/expand hit areas, node overlap during editing, character-width wrapping, drag/click conflicts, and recursive add/edit/delete child-node behavior in HTML/CSS/JavaScript mind map files.
 ---
 
 # Interactive Mindmap Editor
@@ -12,7 +12,7 @@ Use this skill to create or modify standalone HTML mind map editors where nodes 
 ## Workflow
 
 1. Decide whether the user wants text-to-mindmap creation, XMind export, XMind import, existing-editor repair, or a combination.
-2. For existing HTML, locate node rendering, measurement, layout, edit, drag, context-menu, and collapse logic. Search for `createNodeEl`, `refreshNodeEl`, `measure`, `layout`, `relayout`, `beginEdit`, `addChild`, `deleteNode`, `toggleCollapse`, `mousedown`, `dblclick`, and `contextmenu`.
+2. For existing HTML, locate node rendering, measurement, layout, edit, drag, context-menu, fullscreen, and collapse logic. Search for `createNodeEl`, `refreshNodeEl`, `measure`, `layout`, `relayout`, `beginEdit`, `addChild`, `deleteNode`, `toggleCollapse`, `requestFullscreen`, `fullscreenchange`, `mousedown`, `dblclick`, and `contextmenu`.
 3. Confirm the data model before changing behavior. Check whether nodes store `id`, `title`, `sub`, `type`, `color`, `children`, and `collapsed`.
 4. Keep edits scoped. Preserve the existing visual language and engine unless the user asks for a new app.
 5. After editing, inspect modified snippets and search for stale duplicate logic.
@@ -102,6 +102,84 @@ When updating an existing standalone mind map HTML:
 - Preserve the existing color palette and branch type conventions when present.
 - If the HTML supports import JSON, prefer generating a JSON file and instructing/importing through that path unless the user wants the HTML changed directly.
 
+## Fullscreen Presentation
+
+Generated standalone HTML mind maps should include a toolbar button labeled `全屏展示` unless the user explicitly asks for a minimal export without controls.
+
+- Add a visible toolbar button such as `fullscreenBtn` with a recognizable fullscreen icon plus the text `全屏展示`.
+- Use the browser Fullscreen API: call `requestFullscreen()` on the main app/wrap element or `document.documentElement`, and call `document.exitFullscreen()` to exit.
+- Listen for `fullscreenchange` so UI state stays correct when the user exits with Esc or browser controls.
+- When fullscreen is active, add a class such as `is-fullscreen` to `body` and make the mind map content fill the whole display: set the canvas/wrap region to `position: fixed; inset: 0; width: 100vw; height: 100vh; z-index` above normal page chrome.
+- Hide or compress nonessential headers in fullscreen so the mind map content, edges, nodes, toolbar, and viewport occupy the full screen.
+- Call the existing `fitView()` or equivalent after entering and after exiting fullscreen, preferably after a short `requestAnimationFrame` delay, so the map is centered in the new viewport.
+- Provide a top hover exit control: create a fixed top hover zone that is active only in fullscreen, and reveal an `X`/`×` exit button when the mouse points to the top area of the page.
+- Keep the `X` exit button hidden during normal viewing and hidden in fullscreen until the top hover zone is hovered. The button should be keyboard/click accessible and should not overlap editing inputs.
+- Do not use the whole top area as a permanent visible bar in fullscreen; it should feel like presentation mode, with only the map visible until the user moves the mouse to the top.
+- Keep zoom, pan, editing, import/export, and context menus working after entering and exiting fullscreen.
+
+Recommended HTML/CSS/JS shape:
+
+```html
+<button id="fullscreenBtn" title="全屏展示"><span>⛶</span>全屏展示</button>
+<div id="fullscreenExitZone" aria-hidden="true">
+  <button id="fullscreenExitBtn" title="退出全屏" aria-label="退出全屏">×</button>
+</div>
+```
+
+```css
+#fullscreenExitZone {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 64px;
+  z-index: 1000;
+}
+body.is-fullscreen #fullscreenExitZone { display: block; }
+#fullscreenExitBtn {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#fullscreenExitZone:hover #fullscreenExitBtn {
+  opacity: 1;
+  pointer-events: auto;
+}
+body.is-fullscreen .mindmap-wrap {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+}
+```
+
+```js
+function isFullscreen() {
+  return document.fullscreenElement || document.webkitFullscreenElement;
+}
+async function enterFullscreen() {
+  const target = document.documentElement;
+  if (target.requestFullscreen) await target.requestFullscreen();
+  else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+  document.body.classList.add('is-fullscreen');
+  requestAnimationFrame(() => fitView());
+}
+async function exitFullscreen() {
+  if (document.exitFullscreen) await document.exitFullscreen();
+  else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+  document.body.classList.remove('is-fullscreen');
+  requestAnimationFrame(() => fitView());
+}
+document.addEventListener('fullscreenchange', () => {
+  document.body.classList.toggle('is-fullscreen', Boolean(isFullscreen()));
+  requestAnimationFrame(() => fitView());
+});
+```
+
 ## Editing Nodes
 
 For two-line node editors, treat the first line as `title` and the second line as `sub`.
@@ -156,6 +234,10 @@ Collapse/expand should not fire from the whole title area unless the user explic
 - Keep right-click dedicated to the context menu.
 - Store `rec.data.collapsed = rec.collapsed` whenever a node is toggled.
 - Before rebuilding the tree after add/delete/import-like operations, persist current collapsed state into each node's data object.
+- For global toolbar controls, make short clicks incremental: `展开` should expand only one visible collapsed level, and `折叠` should collapse only the deepest currently visible expanded level.
+- Use long press on the same toolbar controls for bulk operations: long-press `展开` should expand all, and long-press `折叠` should collapse all non-root nodes.
+- Use a clear long-press threshold such as 600 ms and suppress the following click after the long-press action fires.
+- Keep explicit context-menu items such as `全部展开` and `全部折叠` as full-tree operations.
 
 Recommended hit-test shape:
 
@@ -165,6 +247,31 @@ function isToggleHandleHit(rec, clientX, clientY) {
   const rect = rec.el.getBoundingClientRect();
   return clientX >= rect.right - 18 && clientX <= rect.right + 18 &&
     clientY >= rect.top && clientY <= rect.bottom;
+}
+```
+
+Recommended one-level toolbar behavior:
+
+```js
+function expandOneLevel() {
+  const targets = Object.values(nodes).filter(rec =>
+    rec.children.length > 0 && rec.collapsed && isNodeVisible(rec)
+  );
+  targets.forEach(rec => { rec.collapsed = false; rec.data.collapsed = false; });
+  if (targets.length) { saveCollapsedState?.(); relayout(true); }
+}
+
+function collapseOneLevel() {
+  const candidates = Object.values(nodes).filter(rec =>
+    rec !== rootNode && rec.children.length > 0 && !rec.collapsed && isNodeVisible(rec)
+  );
+  if (!candidates.length) return;
+  const deepest = Math.max(...candidates.map(rec => rec.depth));
+  candidates
+    .filter(rec => rec.depth === deepest)
+    .forEach(rec => { rec.collapsed = true; rec.data.collapsed = true; });
+  saveCollapsedState?.();
+  relayout(true);
 }
 ```
 
@@ -198,12 +305,14 @@ After changes, verify these behaviors in the local file or browser:
 - Generated JSON can be imported or assigned to the HTML data object without syntax errors.
 - Generated `.xmind` packages contain root-level `content.json`, `metadata.json`, and `manifest.json`.
 - Imported `.xmind` files produce plugin JSON with `root -> part -> topic -> leaf` node types.
+- Generated HTML includes a `全屏展示` toolbar button, uses Fullscreen API when available, fills the display in fullscreen mode, and reveals an `X`/`×` exit button only when the mouse points to the top area.
 - Double-click title and subtitle both enter the same two-line editor.
 - Repeated double-click does not add extra rows.
 - Moving focus from title to subtitle does not save early.
 - Long text wraps around the requested character width and does not turn vertical.
 - Editing or typing pushes nearby nodes away and does not obscure other titles.
 - Only the arrow/handle area toggles collapse; title clicks do not.
+- Toolbar short-click expand/collapse changes one level only; toolbar long-press expands/collapses all.
 - Right-click opens the context menu without toggling collapse.
 - Adding a child to a leaf works, and the new child can itself receive children.
 - Adding or deleting nodes preserves unrelated branch collapse states.

@@ -1,15 +1,15 @@
 {
   "name": "interactive-mindmap-editor",
-  "version": "0.2.1+codex.20260811111423",
-  "description": "Create, repair, import, and export interactive HTML and XMind mind maps.",
+  "version": "0.3.0+codex.20260811163605",
+  "description": "Create, repair, present, import, and export interactive HTML and XMind mind maps.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Interactive Mindmap Editor",
-    "shortDescription": "Create, import, and export HTML/XMind mind maps.",
-    "longDescription": "Helps Codex convert text, outlines, articles, and notes into editable standalone HTML mind maps or XMind-compatible .xmind files, import .xmind files back into plugin JSON, and repair interaction issues such as two-line editing, collapse hit areas, overlap, wrapping, and recursive node operations.",
+    "shortDescription": "Create, present, import, and export HTML/XMind mind maps.",
+    "longDescription": "Helps Codex convert text, outlines, articles, and notes into editable standalone HTML mind maps or XMind-compatible .xmind files, import .xmind files back into plugin JSON, and repair interaction issues such as fullscreen presentation, incremental expand/collapse controls, two-line editing, collapse hit areas, overlap, wrapping, and recursive node operations.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [],
