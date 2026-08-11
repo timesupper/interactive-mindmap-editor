@@ -1,0 +1,4 @@
+interface:
+  display_name: "Interactive Mindmap Editor"
+  short_description: "Create and fix editable HTML mind maps."
+  default_prompt: "Turn my text into an editable HTML mind map, or help me improve an existing interactive mind map editor."
