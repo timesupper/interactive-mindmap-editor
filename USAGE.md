@@ -27,7 +27,9 @@ interactive-mindmap-editor/
 │       ├── agents/
 │       │   └── openai.yaml
 │       └── scripts/
-│           └── text_to_mindmap_data.py
+│           ├── mindmap_data_to_xmind.py
+│           ├── text_to_mindmap_data.py
+│           └── text_to_xmind.py
 ├── README.md
 └── USAGE.md
 ```
@@ -127,6 +129,38 @@ python .\skills\interactive-mindmap-editor\scripts\text_to_mindmap_data.py .\inp
 ```
 
 生成的 JSON 可用于导入或替换现有 HTML 思维导图中的数据对象。
+
+## 导出为 XMind 文件
+
+第一阶段支持生成现代 `.xmind` 文件。输出文件是 XMind 可识别的 zip 包，内部包含：
+
+```text
+content.json
+metadata.json
+manifest.json
+```
+
+### JSON 导出为 XMind
+
+如果已经有插件生成的思维导图 JSON：
+
+```powershell
+python .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_xmind.py .\mindmap-data.json -o .\output.xmind
+```
+
+### 文本或 Markdown 直接导出为 XMind
+
+```powershell
+python .\skills\interactive-mindmap-editor\scripts\text_to_xmind.py .\input.md -o .\output.xmind --root-title "主题"
+```
+
+### 当前阶段的映射规则
+
+- `title` 会变成 XMind 主题标题。
+- `sub` 和 `note` 会写入 XMind 主题备注。
+- `children` 会变成 XMind 子主题。
+- 第一阶段优先保证层级和文本可打开。
+- 样式、图标、颜色、折叠状态、旧版 XMind 8 XML 兼容放到后续阶段。
 
 ## 更新插件
 

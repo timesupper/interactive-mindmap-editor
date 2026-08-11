@@ -1,18 +1,18 @@
 {
   "name": "interactive-mindmap-editor",
-  "version": "0.1.0+codex.20260811013642",
-  "description": "Create, repair, and extend interactive HTML mind map editors.",
+  "version": "0.1.0+codex.20260811021844",
+  "description": "Create, repair, and export interactive HTML and XMind mind maps.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Interactive Mindmap Editor",
-    "shortDescription": "Create and fix editable HTML mind maps.",
-    "longDescription": "Helps Codex convert user text, outlines, articles, and notes into editable standalone HTML mind maps, and repair interaction issues such as two-line editing, collapse hit areas, overlap, wrapping, and recursive node operations.",
+    "shortDescription": "Create HTML and XMind mind maps.",
+    "longDescription": "Helps Codex convert text, outlines, articles, and notes into editable standalone HTML mind maps or XMind-compatible .xmind files, and repair interaction issues such as two-line editing, collapse hit areas, overlap, wrapping, and recursive node operations.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [],
-    "defaultPrompt": "Turn my text into an editable HTML mind map, or help me improve an existing interactive mind map editor."
+    "defaultPrompt": "Turn my text into an editable HTML mind map or XMind file, or help me improve an existing interactive mind map editor."
   }
 }
