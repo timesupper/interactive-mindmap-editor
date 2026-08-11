@@ -1,17 +1,17 @@
 ---
 name: interactive-mindmap-editor
-description: Create, repair, and extend standalone interactive HTML mind map editors and XMind-compatible exports. Use when Codex needs to turn user-provided text, Markdown, outlines, articles, book chapters, or notes into editable mind map data/HTML or .xmind files, export plugin JSON to XMind, or fix editable node titles/subtitles, double-click editing, collapse/expand hit areas, node overlap during editing, character-width wrapping, drag/click conflicts, and recursive add/edit/delete child-node behavior in HTML/CSS/JavaScript mind map files.
+description: Create, repair, and extend standalone interactive HTML mind map editors and XMind-compatible imports/exports. Use when Codex needs to turn user-provided text, Markdown, outlines, articles, book chapters, or notes into editable mind map data/HTML or .xmind files, export plugin JSON to XMind, import .xmind into plugin JSON, or fix editable node titles/subtitles, double-click editing, collapse/expand hit areas, node overlap during editing, character-width wrapping, drag/click conflicts, and recursive add/edit/delete child-node behavior in HTML/CSS/JavaScript mind map files.
 ---
 
 # Interactive Mindmap Editor
 
 ## Overview
 
-Use this skill to create or modify standalone HTML mind map editors where nodes are rendered as DOM elements and connected with SVG paths. It supports three related jobs: converting text into a mind map hierarchy, exporting that hierarchy to XMind-compatible `.xmind`, and repairing interactive editing/folding/layout behavior in an existing mind map.
+Use this skill to create or modify standalone HTML mind map editors where nodes are rendered as DOM elements and connected with SVG paths. It supports four related jobs: converting text into a mind map hierarchy, exporting that hierarchy to XMind-compatible `.xmind`, importing `.xmind` back into plugin JSON, and repairing interactive editing/folding/layout behavior in an existing mind map.
 
 ## Workflow
 
-1. Decide whether the user wants text-to-mindmap creation, XMind export, existing-editor repair, or a combination.
+1. Decide whether the user wants text-to-mindmap creation, XMind export, XMind import, existing-editor repair, or a combination.
 2. For existing HTML, locate node rendering, measurement, layout, edit, drag, context-menu, and collapse logic. Search for `createNodeEl`, `refreshNodeEl`, `measure`, `layout`, `relayout`, `beginEdit`, `addChild`, `deleteNode`, `toggleCollapse`, `mousedown`, `dblclick`, and `contextmenu`.
 3. Confirm the data model before changing behavior. Check whether nodes store `id`, `title`, `sub`, `type`, `color`, `children`, and `collapsed`.
 4. Keep edits scoped. Preserve the existing visual language and engine unless the user asks for a new app.
@@ -54,7 +54,7 @@ For unstructured long prose, first reason about the hierarchy yourself, then eit
 
 ## XMind Export
 
-For first-stage XMind support, export to modern ZIP-based `.xmind` packages with `content.json`, `metadata.json`, and `manifest.json` at the archive root. Do not wrap those files in a top-level folder.
+For XMind export, create modern ZIP-based `.xmind` packages with `content.json`, `metadata.json`, and `manifest.json` at the archive root. Do not wrap those files in a top-level folder.
 
 Use the bundled scripts:
 
@@ -72,6 +72,25 @@ Mapping rules:
 - Preserve hierarchy and text first; style, icons, colors, callouts, and legacy XMind 8 XML are later-stage features.
 
 When generating `.xmind` from user text, prefer `text_to_xmind.py` for structured Markdown/outlines. For unstructured prose, first refine the hierarchy into plugin JSON, then export with `mindmap_data_to_xmind.py`.
+
+## XMind Import
+
+When users provide `.xmind` files, convert them into plugin JSON with:
+
+```bash
+python scripts/xmind_to_mindmap_data.py input.xmind -o mindmap-data.json
+```
+
+Import behavior:
+
+- Prefer modern XMind `content.json` packages.
+- Fall back to basic legacy `content.xml` parsing when present.
+- XMind topic `title` -> plugin `title`.
+- XMind notes -> plugin `sub`.
+- XMind child topics -> plugin `children`.
+- Normalize plugin node `type` as `root`, `part`, `topic`, or `leaf`.
+- Assign simple branch colors for HTML compatibility.
+- Preserve hierarchy and text first; XMind styling, markers, labels, boundaries, summaries, relationships, and fold states may be ignored unless the user asks for deeper fidelity.
 
 ## Injecting Data Into Existing HTML
 
@@ -178,6 +197,7 @@ After changes, verify these behaviors in the local file or browser:
 - Generated titles and subtitles are concise and faithful to the source text.
 - Generated JSON can be imported or assigned to the HTML data object without syntax errors.
 - Generated `.xmind` packages contain root-level `content.json`, `metadata.json`, and `manifest.json`.
+- Imported `.xmind` files produce plugin JSON with `root -> part -> topic -> leaf` node types.
 - Double-click title and subtitle both enter the same two-line editor.
 - Repeated double-click does not add extra rows.
 - Moving focus from title to subtitle does not save early.

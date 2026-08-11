@@ -2,7 +2,7 @@
 
 ## 插件功能
 
-`interactive-mindmap-editor` 是一个 Codex 插件，用于创建、修复和扩展可编辑的 HTML 思维导图。
+`interactive-mindmap-editor` 是一个 Codex 插件，用于创建、修复、导入和导出可编辑的 HTML/XMind 思维导图。
 
 主要能力：
 
@@ -14,6 +14,8 @@
 - 支持各级节点继续新增、编辑、删除子节点。
 - 修复点击标题误触发展开/折叠的问题，只在右侧箭头区域触发折叠。
 - 修复编辑节点时遮挡其他节点的问题。
+- 支持将插件 JSON 或文本导出为 XMind 可打开的 `.xmind` 文件。
+- 支持识别现代 `.xmind` 文件，并转换回插件可用的思维导图 JSON。
 
 ## 插件目录结构
 
@@ -29,8 +31,10 @@ interactive-mindmap-editor/
 │       └── scripts/
 │           ├── mindmap_data_to_xmind.py
 │           ├── text_to_mindmap_data.py
-│           └── text_to_xmind.py
+│           ├── text_to_xmind.py
+│           └── xmind_to_mindmap_data.py
 ├── README.md
+├── CHANGELOG.md
 └── USAGE.md
 ```
 
@@ -130,9 +134,9 @@ python .\skills\interactive-mindmap-editor\scripts\text_to_mindmap_data.py .\inp
 
 生成的 JSON 可用于导入或替换现有 HTML 思维导图中的数据对象。
 
-## 导出为 XMind 文件
+## XMind 文件支持
 
-第一阶段支持生成现代 `.xmind` 文件。输出文件是 XMind 可识别的 zip 包，内部包含：
+插件支持生成现代 `.xmind` 文件。输出文件是 XMind 可识别的 zip 包，内部包含：
 
 ```text
 content.json
@@ -154,13 +158,26 @@ python .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_xmind.py .\mi
 python .\skills\interactive-mindmap-editor\scripts\text_to_xmind.py .\input.md -o .\output.xmind --root-title "主题"
 ```
 
-### 当前阶段的映射规则
+### XMind 导入为插件 JSON
+
+第二阶段支持识别 `.xmind` 文件，并转换成插件 HTML 可导入的 JSON：
+
+```powershell
+python .\skills\interactive-mindmap-editor\scripts\xmind_to_mindmap_data.py .\input.xmind -o .\mindmap-data.json
+```
+
+该导入器优先识别现代 XMind 文件中的 `content.json`，同时对旧版 XMind 包中的 `content.xml` 做基础兼容。
+
+### 当前映射规则
 
 - `title` 会变成 XMind 主题标题。
 - `sub` 和 `note` 会写入 XMind 主题备注。
 - `children` 会变成 XMind 子主题。
-- 第一阶段优先保证层级和文本可打开。
-- 样式、图标、颜色、折叠状态、旧版 XMind 8 XML 兼容放到后续阶段。
+- 导入 `.xmind` 时，XMind 主题标题会变成插件 `title`。
+- 导入 `.xmind` 时，XMind 备注会变成插件 `sub`。
+- 导入 `.xmind` 时，XMind 子主题会变成插件 `children`。
+- 当前阶段优先保证层级和文本可双向转换。
+- 样式、图标、颜色、折叠状态等高级 XMind 元数据暂不做完整还原。
 
 ## 更新插件
 
@@ -173,3 +190,7 @@ codex plugin add interactive-mindmap-editor@personal
 ```
 
 更新后同样建议新开一个 Codex 任务。
+
+## 版本迭代说明
+
+完整版本记录见 [CHANGELOG.md](CHANGELOG.md)。
