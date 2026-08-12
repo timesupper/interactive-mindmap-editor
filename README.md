@@ -1,12 +1,13 @@
 # Interactive Mindmap Editor（四环境兼容 Skill / 插件）
 
-将思维导图能力做成 **Claude Desktop、Claude Code（CLI）、Codex Desktop、Codex CLI 四环境兼容** 的工具包，用于创建、修复、导入和导出可编辑的 HTML/XMind/Markdown 思维导图。
+将思维导图能力做成 **Claude Desktop、Claude Code（CLI）、Codex Desktop、Codex CLI 四环境兼容** 的工具包，用于创建、修复、导入和导出可编辑的 HTML/XMind/Markdown 思维导图，并提供基于 Markdown 的 `Markmap` 兼容互通能力。
 
 ## 功能
 
 - 将文本、Markdown、文章、笔记、章节内容整理成思维导图层级结构（JSON）。
 - 生成可编辑的独立 HTML 思维导图（支持双击编辑、右键增删、批注、折叠、拖拽、全屏展示）。
 - Markdown 提纲与思维导图 JSON 双向转换。
+- Markmap Markdown 与思维导图 JSON 双向转换。
 - 将 JSON 或文本导出为 XMind 可打开的 `.xmind` 文件。
 - 识别现代 `.xmind` 文件并转换回思维导图 JSON。
 - 修复 HTML 思维导图的节点编辑、折叠、布局、重叠和层级操作问题。
@@ -32,6 +33,8 @@ claude-skill-interactive-mindmap/
             ├── text_to_mindmap_data.py      # 文本/Markdown → 思维导图 JSON
             ├── markdown_to_mindmap_data.py  # Markdown 提纲 → 思维导图 JSON
             ├── mindmap_data_to_markdown.py  # 思维导图 JSON → Markdown 提纲
+            ├── markmap_markdown_to_mindmap_data.py # Markmap Markdown → 思维导图 JSON
+            ├── mindmap_data_to_markmap_markdown.py # 思维导图 JSON → Markmap Markdown
             ├── mindmap_data_to_xmind.py     # JSON → .xmind
             ├── text_to_xmind.py             # 文本/Markdown → .xmind
             └── xmind_to_mindmap_data.py     # .xmind → JSON
@@ -87,7 +90,17 @@ Python 脚本与平台无关，可直接在命令行使用（位于 `skills/inte
 python skills/interactive-mindmap-editor/scripts/text_to_mindmap_data.py input.md -o mindmap-data.json --root-title "主题"
 python skills/interactive-mindmap-editor/scripts/mindmap_data_to_xmind.py mindmap-data.json -o output.xmind
 python skills/interactive-mindmap-editor/scripts/xmind_to_mindmap_data.py input.xmind -o mindmap-data.json
+python skills/interactive-mindmap-editor/scripts/mindmap_data_to_markmap_markdown.py mindmap-data.json -o markmap.md
+python skills/interactive-mindmap-editor/scripts/markmap_markdown_to_mindmap_data.py markmap.md -o mindmap-data.json
 ```
+
+## Markmap 集成策略
+
+- 当前交互式 HTML 编辑器仍然是主编辑器。
+- `Markmap` 作为 Markdown 提纲的快速预览和互通层使用，不替代现有编辑、拖拽、自由标题、折叠持久化和 XMind 能力。
+- 当前仓库已完成第一阶段：补齐 `mindmap JSON <-> Markmap Markdown` 的转换入口。
+- HTML 侧已支持内嵌离线 Markmap 预览：优先使用内嵌渲染引擎，失败时回退本地树形预览，并支持层级折叠状态恢复、单菜单悬停展开、以及单按钮全屏/退出全屏切换。
+- 规划文档见 [docs/markmap-plan.md](docs/markmap-plan.md)。
 
 ## 双兼容说明
 
@@ -103,7 +116,10 @@ python skills/interactive-mindmap-editor/scripts/xmind_to_mindmap_data.py input.
 
 - [USAGE.md](USAGE.md)：四个环境的详细安装、验证、更新与常见问题。
 - [CHANGELOG.md](CHANGELOG.md)：版本迭代记录。
+- [docs/markmap-plan.md](docs/markmap-plan.md)：Markmap 分阶段集成方案。
 
 ## 参考实现
 
 项目文件夹中的 `00_序言/序言思维导图.html` 是一个完整的可编辑 HTML 思维导图参考实现，包含本技能描述的全部交互能力。
+
+

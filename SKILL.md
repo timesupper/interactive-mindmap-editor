@@ -1,19 +1,20 @@
 ---
 name: interactive-mindmap-editor
-description: Create, repair, present, import, and export interactive HTML mind maps (思维导图) and XMind-compatible files. Use whenever the user wants to turn text, Markdown, outlines, articles, book chapters, or notes into an editable mind map (HTML or .xmind), generate mind map JSON data, import .xmind files back into JSON, export JSON to XMind, or repair an existing interactive HTML mind map editor, including node double-click editing, fullscreen presentation controls, collapse/expand hit areas, node overlap during editing, character-width text wrapping, drag/click conflicts, and recursive add/edit/delete of child nodes. Trigger on Chinese requests like 生成思维导图, 把这段文字做成思维导图, 导出 XMind, 导入 xmind, 修复思维导图, 编辑思维导图节点.
+description: Create, repair, present, import, and export interactive HTML mind maps (思维导图), Markdown/Markmap outlines, and XMind-compatible files. Use whenever the user wants to turn text, Markdown, Markmap outlines, articles, book chapters, or notes into an editable mind map (HTML or .xmind), generate mind map JSON data, import .xmind files back into JSON, export JSON to Markdown/Markmap/XMind, or repair an existing interactive HTML mind map editor, including node double-click editing, fullscreen presentation controls, collapse/expand hit areas, node overlap during editing, character-width text wrapping, drag/click conflicts, and recursive add/edit/delete of child nodes. Trigger on Chinese requests like 生成思维导图, 把这段文字做成思维导图, 导出 XMind, 导入 xmind, 导出 Markmap, 导入 Markmap, 修复思维导图, 编辑思维导图节点.
 ---
 
 # Interactive Mindmap Editor
 
 ## Overview
 
-Use this skill to create or modify standalone interactive HTML mind map editors (nodes rendered as DOM elements, connected with SVG paths) and to convert between plain text, mind map JSON, and XMind `.xmind` packages. It supports five related jobs:
+Use this skill to create or modify standalone interactive HTML mind map editors (nodes rendered as DOM elements, connected with SVG paths) and to convert between plain text, Markdown, Markmap-compatible Markdown, mind map JSON, and XMind `.xmind` packages. It supports six related jobs:
 
 1. **Text → mind map**: turn prose, Markdown, outlines, articles, or notes into a hierarchical mind map data object.
 2. **HTML generation**: produce standalone editable HTML mind maps with editing, folding, layout, and fullscreen controls.
-3. **XMind export**: write mind map JSON (or text directly) to XMind-compatible `.xmind` packages.
-4. **XMind import**: read `.xmind` files back into mind map JSON.
-5. **Repair**: fix editing, folding, layout, overlap, drag, and hierarchy behavior in an existing HTML mind map.
+3. **Markdown / Markmap interchange**: convert outlines to and from the canonical mind map JSON.
+4. **XMind export**: write mind map JSON (or text directly) to XMind-compatible `.xmind` packages.
+5. **XMind import**: read `.xmind` files back into mind map JSON.
+6. **Repair**: fix editing, folding, layout, overlap, drag, and hierarchy behavior in an existing HTML mind map.
 
 ## Scripts
 
@@ -23,6 +24,8 @@ Bundled Python scripts live in the skill folder. When this repository is install
 python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/text_to_mindmap_data.py" input.md -o mindmap-data.json --root-title "主题"
 python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/markdown_to_mindmap_data.py" input.md -o mindmap-data.json --root-title "主题"
 python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/mindmap_data_to_markdown.py" mindmap-data.json -o outline.md
+python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/markmap_markdown_to_mindmap_data.py" markmap.md -o mindmap-data.json
+python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/mindmap_data_to_markmap_markdown.py" mindmap-data.json -o markmap.md
 python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/mindmap_data_to_xmind.py" mindmap-data.json -o output.xmind
 python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/text_to_xmind.py" input.md -o output.xmind --root-title "主题"
 python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/xmind_to_mindmap_data.py" input.xmind -o mindmap-data.json
@@ -32,7 +35,7 @@ If `${CLAUDE_SKILL_DIR}` does not resolve (older Claude Code), instead locate th
 
 ## Workflow
 
-1. Decide which job the user wants: text-to-mindmap creation, HTML generation, XMind export, XMind import, existing-editor repair, or a combination.
+1. Decide which job the user wants: text-to-mindmap creation, HTML generation, Markdown/Markmap interchange, XMind export, XMind import, existing-editor repair, or a combination.
 2. For existing HTML, locate node rendering, measurement, layout, edit, drag, context-menu, fullscreen, and collapse logic. Search for `createNodeEl`, `refreshNodeEl`, `measure`, `layout`, `relayout`, `beginEdit`, `addChild`, `deleteNode`, `toggleCollapse`, `requestFullscreen`, `fullscreenchange`, `mousedown`, `dblclick`, and `contextmenu`.
 3. Confirm the data model before changing behavior. Check whether nodes store `id`, `title`, `sub`, `type`, `color`, `children`, and `collapsed`.
 4. Keep edits scoped. Preserve the existing visual language and engine unless the user asks for a new app.
@@ -105,6 +108,30 @@ python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/mindmap_da
 ```
 
 Generated standalone HTML mind maps should include `导入 Markdown` and `导出 Markdown` controls when import/export controls are present.
+
+## Markmap Interchange
+
+Use Markmap as a Markdown-based interchange and preview layer, not as a replacement for the existing editor.
+
+Convert Markmap-compatible Markdown to mind map JSON:
+
+```bash
+python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/markmap_markdown_to_mindmap_data.py" markmap.md -o mindmap-data.json
+```
+
+Convert mind map JSON to Markmap-compatible Markdown:
+
+```bash
+python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/mindmap_data_to_markmap_markdown.py" mindmap-data.json -o markmap.md
+```
+
+Rules:
+
+- Reuse Markdown hierarchy as the interchange format.
+- Preserve root title, nested structure, titles, subtitles, and note text where practical.
+- Treat editor-only state such as `collapsed`, `freePosition`, and viewport data as non-round-trippable through Markmap.
+- Export `freeNodes` as a separate `## 自由标题` section when present.
+- For standalone HTML preview mode, prefer embedded offline Markmap rendering, and fall back to a local tree preview only when the embedded libraries are missing or fail to initialize.`r`n- When a Markmap preview toolbar has many actions, it may use a single hover-open menu button instead of two fixed button rows.`r`n- The Markmap preview may persist the active preview page plus the last expand-level state across reopen.`r`n- The Markmap preview may map fold controls to level-based behavior: single click collapses one level, double click restores one level, and long press toggles between fully collapsed and fully expanded.`r`n- A single Markmap fullscreen button may toggle between `全屏` and `退出全屏` labels based on current fullscreen state.
 
 ## Compact Toolbar Menu
 
@@ -485,3 +512,5 @@ After changes, verify these behaviors in the local file or browser:
 - Adding a child to a leaf works, and the new child can itself receive children.
 - Adding or deleting nodes preserves unrelated branch collapse states.
 - Dragging a node beyond the detach threshold makes it independent; releasing near a valid title reparents it, while releasing in empty space keeps it in `freeNodes` after reload.
+
+

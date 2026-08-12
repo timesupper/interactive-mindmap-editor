@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.8.1+markmap-ui.20260812 - 2026-08-12
+
+- Refined standalone Markmap preview UI with embedded offline rendering as the default path.
+- Added preview-state persistence for restoring the last-opened Markmap page and its expand-level state when the HTML is reopened.
+- Added level-based Markmap fold behavior: single click collapses one level, double click restores one level, and long press toggles between fully collapsed and fully expanded.
+- Reworked Markmap preview actions into a single hover-open menu and merged fullscreen enter/exit into one toggle button.
+- Fixed fullscreen interaction conflicts so Markmap preview close and fullscreen controls remain clickable while the page is in fullscreen mode.
+## 0.8.0+markmap.20260812 - 2026-08-12
+
+- Added `mindmap_data_to_markmap_markdown.py` for exporting canonical mind map JSON to Markmap-compatible Markdown.
+- Added `markmap_markdown_to_mindmap_data.py` for importing Markmap-compatible Markdown into canonical mind map JSON.
+- Added `docs/markmap-plan.md` to document the staged Markmap integration strategy.
+- Updated Claude and Codex skill entry points to describe Markmap as a Markdown-based preview and interchange layer.
+- Updated README, USAGE, and plugin metadata to document Markmap compatibility and command examples.
+- Documented standalone HTML preview mode that prefers embedded offline Markmap rendering and falls back to a local tree preview only when embedded library initialization fails.
+
 ## 0.7.0+interaction.20260812 - 2026-08-12
 
 - Added free-floating title behavior with persistent `freeNodes` coordinates.
@@ -69,3 +85,5 @@
 - Added JSON and text to XMind-compatible `.xmind` export.
 - Documented repair guidance for editable HTML mind maps.
 - Captured interaction fixes for two-line editing, collapse hit areas, edit-safe layout, wrapping, and recursive child node operations.
+
+

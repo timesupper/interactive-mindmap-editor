@@ -1,12 +1,13 @@
 # Interactive Mindmap Editor 使用说明
 
-`interactive-mindmap-editor` 是一个 **Claude Desktop / Claude Code（CLI）/ Codex Desktop / Codex CLI 四环境兼容** 的工具包，用于创建、修复、导入和导出可编辑的 HTML、Markdown、XMind 思维导图。
+`interactive-mindmap-editor` 是一个 **Claude Desktop / Claude Code（CLI）/ Codex Desktop / Codex CLI 四环境兼容** 的工具包，用于创建、修复、导入和导出可编辑的 HTML、Markdown、XMind 思维导图，并提供 `Markmap` 兼容互通能力。
 
 ## 功能
 
 - 将文本、Markdown、文章、笔记、章节内容整理成思维导图层级结构（JSON）。
 - 生成可编辑的独立 HTML 思维导图（支持双击编辑、右键增删、批注、折叠、拖拽、全屏展示）。
 - 支持 Markdown 提纲与思维导图 JSON 双向转换。
+- 支持 Markmap Markdown 与思维导图 JSON 双向转换。
 - 将 JSON 或文本导出为 XMind 可打开的 `.xmind` 文件。
 - 识别现代 `.xmind` 文件并转换回思维导图 JSON。
 - 修复 HTML 思维导图的节点编辑、折叠、布局、重叠和层级操作问题。
@@ -32,6 +33,8 @@ claude-skill-interactive-mindmap/
             ├── text_to_mindmap_data.py      # 文本/Markdown → 思维导图 JSON
             ├── markdown_to_mindmap_data.py  # Markdown 提纲 → 思维导图 JSON
             ├── mindmap_data_to_markdown.py  # 思维导图 JSON → Markdown 提纲
+            ├── markmap_markdown_to_mindmap_data.py # Markmap Markdown → 思维导图 JSON
+            ├── mindmap_data_to_markmap_markdown.py # 思维导图 JSON → Markmap Markdown
             ├── mindmap_data_to_xmind.py     # JSON → .xmind
             ├── text_to_xmind.py             # 文本/Markdown → .xmind
             └── xmind_to_mindmap_data.py     # .xmind → JSON
@@ -192,6 +195,12 @@ python skills/interactive-mindmap-editor/scripts/markdown_to_mindmap_data.py inp
 # 思维导图 JSON → Markdown 提纲
 python skills/interactive-mindmap-editor/scripts/mindmap_data_to_markdown.py mindmap-data.json -o outline.md
 
+# 思维导图 JSON → Markmap Markdown
+python skills/interactive-mindmap-editor/scripts/mindmap_data_to_markmap_markdown.py mindmap-data.json -o markmap.md
+
+# Markmap Markdown → 思维导图 JSON
+python skills/interactive-mindmap-editor/scripts/markmap_markdown_to_mindmap_data.py markmap.md -o mindmap-data.json
+
 # JSON → XMind
 python skills/interactive-mindmap-editor/scripts/mindmap_data_to_xmind.py mindmap-data.json -o output.xmind
 
@@ -221,6 +230,32 @@ git pull
 
 更新后建议新开一个任务让技能重新加载。
 
+## Markmap 使用方式
+
+`Markmap` 在本插件中的定位是 Markdown 互通与预览层，不是主编辑器。
+
+推荐流程：
+
+1. 用 Markdown 提纲或章节文本生成思维导图 JSON。
+2. 在交互式 HTML 中完成编辑、拖拽、折叠和自由标题处理。
+3. 需要 `Markmap` 预览或共享时，将当前 JSON 导出为 `markmap.md`。
+4. 如果已有 `Markmap`/Markdown 提纲文件，可反向导入为当前插件的思维导图 JSON。
+
+HTML 预览模式建议：
+
+- 优先使用 HTML 内嵌的离线 `markmap` 渲染引擎展示 Markdown。
+- 如果内嵌依赖缺失或加载失败，则自动回退为本地树形预览。
+- 预览面板可采用悬停菜单：将 `刷新`、`导出 Markdown`、`全屏/退出全屏`、`适应`、`放大`、`缩小`、`折叠/展开` 收纳到单一菜单按钮下。
+- `折叠/展开` 可采用三级交互：单击折叠一级，双击恢复一级，长按在全部折叠和全部展开之间切换。`Markmap` 预览重新打开时应恢复上次退出时的预览页状态与折叠层级。
+
+限制说明：
+
+- `Markmap` 转换默认保留层级、标题、副标题、批注文本。
+- `Markmap` 不负责恢复自由标题坐标、折叠状态、缩放位置和其他编辑器专属状态。
+- `freeNodes` 会作为 `## 自由标题` 段落导出，导回时按普通层级节点处理。
+
+设计方案文档见 [docs/markmap-plan.md](docs/markmap-plan.md)。
+
 ## 项目迁移方式
 
 - **Codex**：一台机器装一次，所有 Codex 任务都能用。换设备时在新设备上执行安装命令。若项目需要锁定版本，可把本仓库 clone 进项目，并让 Codex 直接使用该本地路径下的脚本。
@@ -245,3 +280,5 @@ Claude 桌面版与 Claude Code CLI 的技能互不同步：桌面版通过上�
 ## 参考实现
 
 项目文件夹中的 `00_序言/序言思维导图.html` 是一个完整的可编辑 HTML 思维导图参考实现，包含本技能描述的全部交互能力。
+
+
