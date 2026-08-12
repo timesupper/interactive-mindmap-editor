@@ -305,6 +305,16 @@ Editing can change node width and height. Re-measure and re-layout immediately a
 - Call the existing animated relayout only when finishing edits or when fold/unfold behavior changes.
 - Preserve the existing `measure -> layout -> assignAbs -> updatePositions -> renderEdges` flow when present.
 
+### Viewport stability and sibling alignment
+
+- Never run `fitView()` implicitly after drag, reparent, edit, add, delete, note changes, collapse/expand, window resize, or fullscreen changes. Keep the current zoom and viewing position stable.
+- Allow full-map fitting only on initial load, after importing a different map, or when the user explicitly chooses `适配`, reset, or `Ctrl+0`.
+- Capture an anchor node's screen center before layout/rebuild and restore it afterward by changing only `view.tx`/`view.ty`; do not modify `view.scale`.
+- Anchor edits and notes to the changed node, add/delete to the parent, drag/reparent to the moved node, and global collapse/expand to the selected node or root.
+- Preserve the map coordinate at the viewport center across window and fullscreen size changes rather than refitting the map.
+- Give all direct children of one parent the same X coordinate. Sort them by data order and use constant edge-to-edge vertical spacing, with a larger gap between root-level sections.
+- Reparented nodes must be inserted by release Y position before layout, for both ordinary parents and root. Free nodes keep absolute coordinates and do not participate in sibling alignment.
+
 ## Collapse And Expand
 
 Collapse/expand should not fire from the whole title area unless the user explicitly wants that.
@@ -357,6 +367,35 @@ function collapseOneLevel() {
 
 ## Adding, Editing, And Deleting Hierarchy
 
+## Free-Floating Titles
+
+When a node is dragged far enough from its current parent, make it a free-floating title:
+
+- Use a pointer displacement threshold, default `180px`, to enter free mode. A short press or a brief hold alone must not detach the node.
+- Store detached nodes in root-level `freeNodes`, not in `root.children`; set `freePosition: {x, y}` and keep the node's children with it.
+- Free nodes have no parent and no connector to the tree. Render them at their saved absolute coordinates with a visible dashed/gold free-state style.
+- While dragging, only preview a possible new parent. On release, attach to a nearby valid node only within `130px`; otherwise retain the free node unchanged.
+- Treat siblings as valid parent targets. Approaching a sibling highlights it and draws a blue dashed target connector; releasing there makes the dragged node its child.
+- Once pointer displacement exceeds the `180px` detach threshold, hide the original solid parent edge and draw a gold dashed edge from the original parent to the moving node until release. Do not mutate hierarchy during this preview.
+- Use `130px` to acquire a target and approximately `155px` to release the current target, preventing target highlight flicker at the boundary.
+- Exclude hidden, editing, free, dragged, and descendant nodes from targets. Clear preview edges and highlights on release, cancellation, and pinch-zoom takeover.
+- Moving a free node into a target removes it from `freeNodes` and appends it to `target.children`. Moving it into empty space keeps it independent and persistent after reload.
+- Exclude the dragged node and its descendants from valid targets. Keep the root as a valid target; releasing near it moves the node into `root.children` as a top-level section at the release Y position. Never create a cycle.
+- After release, select the moved node without opening its editor automatically, preserve the current viewport and zoom, and apply only the minimum layout adjustment needed to keep the moved subtree usable.
+
+Recommended root data extension:
+
+```js
+{
+  ...root,
+  children: [/* hierarchical nodes */],
+  freeNodes: [
+    { id: 'free-1', title: '独立标题', free: true,
+      freePosition: { x: 420, y: 180 }, children: [] }
+  ]
+}
+```
+
 All visible node levels should support add/edit/delete unless the product explicitly protects the root.
 
 - Right-click on any non-root node should expose edit, add child, notes if present, and delete.
@@ -396,3 +435,4 @@ After changes, verify these behaviors in the local file or browser:
 - Right-click opens the context menu without toggling collapse.
 - Adding a child to a leaf works, and the new child can itself receive children.
 - Adding or deleting nodes preserves unrelated branch collapse states.
+- Dragging a node far enough detaches it; release near a valid node reparents it, and release in empty space preserves it as a free node after reopening the page.

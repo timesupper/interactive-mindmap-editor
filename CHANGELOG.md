@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0+interaction.20260812 - 2026-08-12
+
+- Added free-floating title behavior with persistent `freeNodes` coordinates.
+- Added sibling-title reparenting on release, including release-position ordering.
+- Added dashed detach previews and blue dashed target previews during drag.
+- Stabilized the viewport after drag, edit, add, delete, collapse, resize, and fullscreen operations.
+- Added anchor-based layout with aligned siblings and constant edge-to-edge spacing.
+- Fixed connector redraw after drag reparenting and prevented moved titles from disappearing off-screen.
+
 ## 0.6.0+quad.20260811 - 2026-08-11
 
 - 新增四环境兼容支持：Claude Desktop、Claude Code（CLI）、Codex Desktop、Codex CLI。

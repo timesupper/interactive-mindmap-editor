@@ -339,6 +339,17 @@ Editing can change node width and height. Re-measure and re-layout immediately a
 - Call the existing animated relayout only when finishing edits or when fold/unfold behavior changes.
 - Preserve the existing `measure -> layout -> assignAbs -> updatePositions -> renderEdges` flow when present.
 
+### Viewport stability and sibling alignment
+
+- Do not call `fitView()` after dragging, reparenting, editing, adding, deleting, annotating, folding, expanding, resizing the window, or entering/exiting fullscreen. These operations must not change the user's zoom level or automatically center the whole map.
+- Reserve `fitView()` for initial page load, importing a new map, and explicit user commands such as `适配`, reset view, or `Ctrl+0`.
+- Before a layout or tree rebuild, capture the screen position of an operation anchor; after layout, compensate only `view.tx` and `view.ty` so the anchor stays in the same screen position. Never change `view.scale` during anchor restoration.
+- Use the edited node as the anchor for text and note changes, the parent for add/delete, the dragged node for reparent/detach, and the selected node (or root) for global fold/expand.
+- On window or fullscreen size changes, preserve the map coordinate under the old viewport center and restore it under the new viewport center without fitting the whole map.
+- Align direct siblings to the same X coordinate and arrange them vertically in data order with a constant gap. Use a smaller normal sibling gap and a larger root-section gap; node height may vary, but the edge-to-edge gap must remain constant.
+- When a dragged node is attached to any parent, including root, insert it among direct siblings by release Y position before layout. Let the normal layout provide left alignment and equal spacing.
+- Free nodes remain outside tree alignment. Keep their absolute positions and only resolve actual overlap; do not move unrelated tree branches or center the viewport.
+
 ## Collapse And Expand
 
 Collapse/expand should not fire from the whole title area unless the user explicitly wants that.
@@ -391,6 +402,43 @@ function collapseOneLevel() {
 
 ## Adding, Editing, And Deleting Hierarchy
 
+## Free-Floating Titles
+
+Generated HTML mind maps should support detaching a node into a free-floating title during drag:
+
+- Start a left-button drag on a non-root node; a click without movement keeps the normal select/edit/collapse behavior.
+- A node becomes free only after its pointer displacement from the drag start reaches the configured detach threshold (default `180px`). Do not use a short long-press timer as the detach trigger.
+- While free, show a dashed/gold visual state and keep the node at the dragged coordinates. It must not remain in `root.children`, must not inherit a parent, and must not draw a connector to the root or another node.
+- Persist free nodes in a dedicated root-level `freeNodes` array. Store their current coordinates in `freePosition: {x, y}` so rebuilding or reopening the HTML preserves the free state.
+- During a free drag, highlight a nearby valid node as a pending reparent target. Do not change the data hierarchy while the pointer is moving.
+- A sibling node is a valid new parent. When the dragged title approaches a sibling, highlight that sibling and show a blue dashed preview connector; on release, attach the dragged title beneath that sibling instead of returning it to their shared parent.
+- Before the pointer is released, crossing the detach threshold must hide the original solid parent connector and replace it with a gold dashed connector from the original parent to the moving title. This is a preview only; keep the original hierarchy intact until release.
+- Use target hysteresis to avoid flicker: enter a target around `130px`, but keep the current target until the pointer moves beyond about `155px`.
+- When a different target is previewed, hide the original solid connector and show only the target preview connector. Clear every preview connector and target highlight on release, cancellation, or a switch to pinch zoom.
+- On pointer release, attach the free node to the highlighted nearby node only when it is within the attach threshold (default `130px`). Otherwise keep it free in `freeNodes`.
+- Moving a free node to another title removes it from `freeNodes` and appends it to the target's `children`; moving it to empty space leaves it independent.
+- Exclude the dragged node and its descendants from reparent target selection. The root remains a valid target: releasing near it should insert the node into `root.children` as a top-level section, ordered by the release Y position. Never create a cycle.
+- After a drag release, select the moved node but do not automatically enter edit mode. Refit the view after hierarchy changes so the moved node and its descendants remain fully visible.
+- Keep free-node coordinates outside the normal tree layout and include them in content bounds, collision checks, save/load, Markdown export, and XMind export according to the chosen fallback policy. The default export policy is to serialize free nodes as top-level entries with an explicit `free: true` marker or note rather than silently attaching them.
+
+Recommended state shape:
+
+```js
+{
+  ...root,
+  children: [/* attached hierarchy */],
+  freeNodes: [
+    {
+      id: 'free-1',
+      title: '独立标题',
+      freePosition: { x: 420, y: 180 },
+      free: true,
+      children: []
+    }
+  ]
+}
+```
+
 All visible node levels should support add/edit/delete unless the product explicitly protects the root.
 
 - Right-click on any non-root node should expose edit, add child, notes if present, and delete.
@@ -436,3 +484,4 @@ After changes, verify these behaviors in the local file or browser:
 - Right-click opens the context menu without toggling collapse.
 - Adding a child to a leaf works, and the new child can itself receive children.
 - Adding or deleting nodes preserves unrelated branch collapse states.
+- Dragging a node beyond the detach threshold makes it independent; releasing near a valid title reparents it, while releasing in empty space keeps it in `freeNodes` after reload.
