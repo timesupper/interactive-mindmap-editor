@@ -296,6 +296,20 @@ python .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_markdown.py .
 - `导入 Markdown`：选择 `.md` / `.markdown` / `.txt` 文件后，将 Markdown 提纲转换成当前思维导图。
 - `导出 Markdown`：将当前页面中的思维导图导出为 `.md` 文件。
 
+### 全局编号菜单
+
+在根节点、任意节点或画布空白处右键，可使用整张导图级别的编号操作：
+
+- `全部自动编号`：按当前标题顺序和层级启用多级编号。
+- `重编全部编号`：保留编号状态并按最新树结构重新编号。
+- `取消全部编号`：清除所有编号并关闭自动重编。
+
+编号状态会保存到当前 HTML 的本地存储。编号开启后，新增、删除、拖动换序、改变父子关系、转为自由标题以及导入 JSON/Markdown 都会自动重编。Markmap 模式显示同样的编号，但内部使用标准 Markdown 无序列表，避免多级编号被浏览器解析为普通文本。
+
+### Edge 与 Chrome 的 Markmap 兼容
+
+独立 HTML 页面应在 Markmap 初始化前确认 SVG 容器有有效宽高；窗口或弹窗尺寸变化后再执行适配。关闭 Markmap 时要清理动画、ResizeObserver、定时器和未完成渲染，避免 Edge 控制台出现 `translate(NaN,NaN)`。
+
 ### HTML 导出文件位置
 
 插件后续生成或修复的独立 HTML 页面，应让 JSON、Markdown、XMind 三种导出统一使用系统“另存为”窗口：

@@ -66,6 +66,14 @@ python .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_markdown.py .
 
 Generated standalone HTML mind maps should include `导入 Markdown` and `导出 Markdown` controls when import/export controls are present.
 
+## Global numbering and Markmap compatibility
+
+Standalone HTML editors should keep these global actions in the right-click context menu: `全部自动编号`, `重编全部编号`, and `取消全部编号`.
+
+The enabled state should persist after reopening the HTML. While numbering is enabled, add/delete/reorder/reparent/free-node and JSON/Markdown import operations should renumber the complete tree. Markmap preview should display the same numbers while using standard `-` list markers internally so all child levels parse consistently in Chrome and Edge.
+
+For embedded Markmap rendering, validate preview container dimensions before creating the SVG, guard `fit()` against invalid dimensions, and dispose pending transitions, observers, timers, and render tasks when the preview closes.
+
 ## HTML file export
 
 Generated standalone HTML should route JSON, Markdown, and XMind exports through one system Save As flow:

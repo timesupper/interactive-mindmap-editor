@@ -93,6 +93,8 @@ When creating or repairing standalone HTML mind maps:
 - Include `导入 Markdown` and `导出 Markdown` when import/export controls are present.
 - Route JSON, Markdown, and XMind export through one `showSaveFilePicker` flow. Open it directly from the click, use one stable picker id, persist the last successful file handle, pass it back as `startIn`, save without a second confirmation, cancel without fallback download, and hide the success notice after three seconds.
 - Include `全屏展示`; fullscreen should fill the display and show an `X`/`×` exit control only when the pointer reaches the top area.
+- Keep global numbering actions in the right-click context menu: apply all numbering, renumber all, and clear all numbering. Persist the enabled state and renumber after structural changes and imports.
+- For Markmap previews, render standard Markdown list markers even when the editor displays hierarchical numbering; validate SVG dimensions before initialization and dispose pending transitions, observers, timers, and render tasks on close for Chrome/Edge compatibility.
 
 ## Platform Notes
 

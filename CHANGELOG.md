@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased - 2026-08-13
+
+- Added persistent global Markdown numbering controls to the context menu: apply, renumber, and clear all numbering.
+- Documented automatic renumbering after node add, delete, reorder, reparent, free-node detachment, and JSON/Markdown import.
+- Stabilized standalone Markmap previews across Chrome and Edge by using standard unordered Markdown markers, validating SVG dimensions before initialization, and cleaning up pending render/zoom work on close.
+
 ## 0.6.0+dual.20260813110255 - 2026-08-13
 
 - Standardized JSON, Markdown, and XMind export in generated standalone HTML through the system Save As picker.

@@ -103,6 +103,16 @@ HTML behavior:
 - Show a non-blocking success notice containing the saved filename and remove it automatically after three seconds.
 - Prefer `showSaveFilePicker` over `showDirectoryPicker` for local `file://` pages because system folders such as Downloads may be rejected by a directory picker.
 
+## Global Markdown Numbering
+
+Keep `全部自动编号`, `重编全部编号`, and `取消全部编号` in the right-click context menu, including when the user right-clicks the canvas background. Persist an explicit numbering-enabled state. When enabled, renumber after add, delete, sibling reorder, reparent, free-node detachment, and JSON/Markdown import.
+
+Markmap preview may display generated numbers in labels, but its input must use standard `-` list markers so nested nodes parse consistently across browsers.
+
+## Markmap Browser Compatibility
+
+Before creating an embedded Markmap instance, verify that the preview container and SVG have finite dimensions greater than two pixels. Schedule fitting only after the dialog is visible and sized. On preview close or rebuild, cancel stale render tokens, timers, resize observers, D3 transitions, and the Markmap instance to prevent `translate(NaN,NaN)` errors in Edge.
+
 ## Compact Toolbar Menu
 
 When a standalone HTML mind map has many toolbar controls, group secondary actions behind a compact round menu button so the canvas stays readable.
