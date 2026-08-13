@@ -96,6 +96,12 @@ HTML behavior:
 - After Markdown import, rebuild the tree, apply saved or default collapse state as appropriate, save the new state, and call `fitView()`.
 - Do not require a server or external library for basic Markdown outline import/export in standalone HTML.
 - Keep JSON and XMind import/export controls working after adding Markdown controls.
+- Route JSON, Markdown, and XMind exports through one `showSaveFilePicker` helper. Call the picker before any unrelated `await` so it remains inside the export button's user gesture.
+- Use a stable picker `id`, persist the last successfully saved `FileSystemFileHandle` in IndexedDB, restore it without requesting permission during page load, and pass it as `startIn` on the next export.
+- Save immediately after the user confirms the system Save As window. Do not add a second `confirm()` dialog.
+- Treat `AbortError` as cancellation and do not call an anchor-download fallback.
+- Show a non-blocking success notice containing the saved filename and remove it automatically after three seconds.
+- Prefer `showSaveFilePicker` over `showDirectoryPicker` for local `file://` pages because system folders such as Downloads may be rejected by a directory picker.
 
 ## Compact Toolbar Menu
 
@@ -412,6 +418,7 @@ After changes, verify these behaviors in the local file or browser:
 - Imported `.xmind` files produce plugin JSON with `root -> part -> topic -> leaf` node types.
 - Generated HTML includes a `全屏展示` toolbar button, uses Fullscreen API when available, fills the display in fullscreen mode, and reveals an `X`/`×` exit button only when the mouse points to the top area.
 - Generated HTML with many toolbar controls groups secondary actions behind a round menu button above the visible zoom-in button.
+- JSON, Markdown, and XMind exports open the same Save As flow, can save to system folders, reopen at the last successful save location, do not download after cancellation, and show a three-second success notice.
 - Double-click title and subtitle both enter the same two-line editor.
 - Repeated double-click does not add extra rows.
 - Moving focus from title to subtitle does not save early.

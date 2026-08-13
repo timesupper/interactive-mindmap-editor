@@ -66,6 +66,18 @@ python .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_markdown.py .
 
 Generated standalone HTML mind maps should include `导入 Markdown` and `导出 Markdown` controls when import/export controls are present.
 
+## HTML file export
+
+Generated standalone HTML should route JSON, Markdown, and XMind exports through one system Save As flow:
+
+- Open `showSaveFilePicker` directly from the export button click so the browser preserves the user gesture.
+- Use a stable picker `id` for all export formats and persist the last successfully saved file handle in IndexedDB.
+- Pass the restored file handle as `startIn` so later exports, including exports after reopening the HTML, start in the previous save folder.
+- Save immediately after the user confirms the Save As window; do not show a second confirmation dialog.
+- Treat closing or cancelling the Save As window as cancellation and do not start a fallback download.
+- Show a non-blocking success message with the saved filename and hide it automatically after three seconds.
+- Prefer `showSaveFilePicker` over `showDirectoryPicker` for local `file://` pages because directory pickers can reject protected system folders such as Downloads.
+
 ## HTML toolbar menu
 
 When a generated standalone HTML mind map has many controls, group secondary actions behind a compact round menu button placed above the visible zoom controls. Keep zoom in, zoom out, and reset view visible as round buttons.

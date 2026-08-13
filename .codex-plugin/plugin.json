@@ -1,6 +1,6 @@
 {
   "name": "interactive-mindmap-editor",
-  "version": "0.5.0+dual.20260811190000",
+  "version": "0.6.0+dual.20260813110255",
   "description": "Create, repair, present, import, and export interactive HTML, Markdown, and XMind mind maps for Codex and Claude workflows.",
   "author": {
     "name": "Local developer"

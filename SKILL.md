@@ -91,6 +91,7 @@ When creating or repairing standalone HTML mind maps:
 - If many controls exist, group secondary actions behind a round menu button above the visible zoom-in `+` button.
 - Keep zoom in, zoom out, and reset visible as round controls.
 - Include `导入 Markdown` and `导出 Markdown` when import/export controls are present.
+- Route JSON, Markdown, and XMind export through one `showSaveFilePicker` flow. Open it directly from the click, use one stable picker id, persist the last successful file handle, pass it back as `startIn`, save without a second confirmation, cancel without fallback download, and hide the success notice after three seconds.
 - Include `全屏展示`; fullscreen should fill the display and show an `X`/`×` exit control only when the pointer reaches the top area.
 
 ## Platform Notes

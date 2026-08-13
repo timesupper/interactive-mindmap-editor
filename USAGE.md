@@ -296,6 +296,18 @@ python .\skills\interactive-mindmap-editor\scripts\mindmap_data_to_markdown.py .
 - `导入 Markdown`：选择 `.md` / `.markdown` / `.txt` 文件后，将 Markdown 提纲转换成当前思维导图。
 - `导出 Markdown`：将当前页面中的思维导图导出为 `.md` 文件。
 
+### HTML 导出文件位置
+
+插件后续生成或修复的独立 HTML 页面，应让 JSON、Markdown、XMind 三种导出统一使用系统“另存为”窗口：
+
+- 点击导出后直接打开系统“另存为”窗口，可选择系统“下载”等文件夹。
+- 用户在“另存为”窗口确认位置后立即写入文件，不再弹出第二次确认框。
+- 用户取消“另存为”窗口时，本次导出结束，不应自动下载到浏览器默认目录。
+- 三种格式共用稳定的选择器标识，并在 IndexedDB 中保存上一次成功导出的文件句柄。
+- 再次导出或重新打开 HTML 后导出时，应把该文件句柄作为 `startIn`，默认回到上次保存文件所在目录。
+- 导出成功后显示页面内提示，内容包含文件名，3 秒后自动消失。
+- 本地 `file://` 页面优先使用 `showSaveFilePicker`，不要使用 `showDirectoryPicker` 选择系统下载目录。
+
 ## XMind 文件支持
 
 插件支持生成现代 `.xmind` 文件。输出文件是 XMind 可识别的 zip 包，内部包含：

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0+dual.20260813110255 - 2026-08-13
+
+- Standardized JSON, Markdown, and XMind export in generated standalone HTML through the system Save As picker.
+- Replaced directory-only selection with `showSaveFilePicker` so users can save into system folders such as Downloads.
+- Removed the redundant confirmation dialog after selecting a save destination.
+- Added a shared picker id and persisted the last successful file handle so later exports reopen at the previous save location, including after reopening the HTML.
+- Added non-blocking export notifications that disappear after three seconds on success.
+- Ensured cancelling the Save As dialog does not trigger a fallback download.
+
 ## 0.5.0+dual.20260811190000 - 2026-08-11
 
 - Added root-level `SKILL.md` as the Claude Skill entry point while preserving the Codex skill under `skills/interactive-mindmap-editor/SKILL.md`.
