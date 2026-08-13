@@ -112,6 +112,10 @@ python skills/interactive-mindmap-editor/scripts/markmap_markdown_to_mindmap_dat
 
 两个 SKILL.md 的差异：Claude 版 frontmatter 用 `name` + `description`（含中英文触发词），脚本路径用 `${CLAUDE_SKILL_DIR}`；Codex 版保留 Codex 风格 frontmatter 与相对路径 `scripts/`。
 
+## 最新 HTML 行为
+
+生成或修复独立 HTML 时，保留 `全部自动编号`、`重编全部编号`、`取消全部编号` 三个全局右键菜单项，并持久化编号启用状态。编号开启后，新增、删除、排序、改挂父节点、自由标题分离以及 JSON/Markdown 导入后自动重编。Markmap 预览显示相同编号，但内部使用标准 `-` Markdown 列表；初始化前校验 SVG 尺寸，关闭或重建时清理异步任务，避免 Chrome/Edge 的 `translate(NaN,NaN)` 错误。
+
 ## 详细文档
 
 - [USAGE.md](USAGE.md)：四个环境的详细安装、验证、更新与常见问题。

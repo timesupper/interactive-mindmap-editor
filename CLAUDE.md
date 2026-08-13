@@ -91,6 +91,7 @@ When creating or repairing standalone HTML mind maps:
 - If there are many toolbar controls, group secondary actions behind a round menu button above the visible zoom-in `+` button.
 - Keep zoom in, zoom out, and reset view visible as round controls.
 - Generated HTML with import/export controls should include `导入 Markdown` and `导出 Markdown`.
+- Generated HTML should use one `showSaveFilePicker` flow for JSON, Markdown, and XMind export: open directly from the click, remember the last successful file handle for `startIn`, save without a second confirmation, cancel without fallback download, and auto-hide the success message after three seconds.
 - Generated HTML should include `全屏展示`; fullscreen should fill the display and reveal an `X`/`×` exit button only when the mouse points to the top area.
 
 ## Skill Script Paths

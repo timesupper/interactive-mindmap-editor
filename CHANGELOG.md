@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.0+merged.20260813160000 - 2026-08-13
+
+- Merged standalone HTML export workflow into the Markmap-compatible master line.
+- Added persistent global numbering actions in the right-click menu: apply, renumber, and clear all numbering.
+- Documented automatic renumbering after structural edits and JSON/Markdown import.
+- Stabilized Chrome/Edge Markmap rendering with standard preview list markers, finite SVG dimension checks, and cleanup of pending render/zoom work on close.
+
 ## 0.8.1+markmap-ui.20260812 - 2026-08-12
 
 - Refined standalone Markmap preview UI with embedded offline rendering as the default path.

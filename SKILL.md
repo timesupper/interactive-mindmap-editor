@@ -491,6 +491,10 @@ parent.collapsed = false;
 - Open a modal/popup to view and edit the note; store the value in `node.data.note`.
 - Persist `note` through JSON export/import and map it to XMind notes on export.
 
+## Global numbering and browser compatibility
+
+Keep `全部自动编号`, `重编全部编号`, and `取消全部编号` in the right-click context menu, including the canvas background. Persist the enabled state and renumber after structural changes and imports. Markmap preview input must use standard `-` list markers, validate finite SVG dimensions before initialization, and dispose pending render work on close or rebuild for Chrome/Edge compatibility.
+
 ## Verification Checklist
 
 After changes, verify these behaviors in the local file or browser:

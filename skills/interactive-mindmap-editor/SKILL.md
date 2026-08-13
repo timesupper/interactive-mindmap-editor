@@ -439,6 +439,14 @@ parent.data.collapsed = false;
 parent.collapsed = false;
 ```
 
+## Global Markdown Numbering
+
+Keep `全部自动编号`, `重编全部编号`, and `取消全部编号` in the right-click context menu, including the canvas background. Persist the numbering-enabled state and renumber after add, delete, reorder, reparent, free-node detachment, and JSON/Markdown import. Markmap preview may display generated numbers, but its Markdown input must use standard `-` list markers.
+
+## Markmap Browser Compatibility
+
+Verify finite preview and SVG dimensions before creating Markmap. On preview close or rebuild, cancel stale render tokens, timers, resize observers, D3 transitions, and the Markmap instance to prevent `translate(NaN,NaN)` errors in Edge.
+
 ## Verification Checklist
 
 After changes, verify these behaviors in the local file or browser:
