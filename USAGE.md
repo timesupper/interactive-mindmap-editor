@@ -23,7 +23,15 @@ claude-skill-interactive-mindmap/
 ├── README.md                                # 总览
 ├── USAGE.md                                 # 本说明
 ├── CHANGELOG.md                             # 版本记录
+├── SKILL_CONSTRAINTS.md                     # Skill 功能、性能和验收约束
 ├── install-codex.ps1                        # Codex 一键安装脚本（PowerShell）
+├── SKILL_CONSTRAINTS.md                     # Skill 功能、性能和验收约束
+├── templates/
+│   └── interactive-mindmap.html              # 独立 Markmap HTML 模板
+├── runtime/
+│   ├── markmap-preview.js                    # Markmap 渲染和回退运行时
+│   ├── markmap-preview.css                   # Markmap 预览样式
+│   └── markmap-assets.js                     # 离线依赖资产
 └── skills/
     └── interactive-mindmap-editor/
         ├── SKILL.md                         # Codex 技能定义（供 Codex 读取）
@@ -35,6 +43,7 @@ claude-skill-interactive-mindmap/
             ├── mindmap_data_to_markdown.py  # 思维导图 JSON → Markdown 提纲
             ├── markmap_markdown_to_mindmap_data.py # Markmap Markdown → 思维导图 JSON
             ├── mindmap_data_to_markmap_markdown.py # 思维导图 JSON → Markmap Markdown
+            ├── render_markmap_html.py       # JSON → 独立离线 Markmap HTML
             ├── mindmap_data_to_xmind.py     # JSON → .xmind
             ├── text_to_xmind.py             # 文本/Markdown → .xmind
             └── xmind_to_mindmap_data.py     # .xmind → JSON
@@ -100,6 +109,16 @@ git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\pl
 cd "$HOME\plugins\interactive-mindmap-editor"
 .\install-codex.ps1
 ```
+
+如果 `$HOME\plugins\interactive-mindmap-editor` 已经存在，重复执行 `git clone` 会出现 `destination path already exists`。此时直接更新：
+
+```powershell
+cd "$HOME\plugins\interactive-mindmap-editor"
+git pull origin master
+.\install-codex.ps1
+```
+
+安装脚本兼容 Windows PowerShell 5.1 和 PowerShell 7，并使用 ASCII 提示文本避免旧版 PowerShell 按系统编码读取脚本时出现字符串终止符错误。
 
 ### 方式三：手动安装（脚本不可用时）
 
@@ -209,6 +228,18 @@ python skills/interactive-mindmap-editor/scripts/text_to_xmind.py input.md -o ou
 
 # XMind → JSON
 python skills/interactive-mindmap-editor/scripts/xmind_to_mindmap_data.py input.xmind -o mindmap-data.json
+
+# Markmap Markdown ↔ 思维导图 JSON
+python skills/interactive-mindmap-editor/scripts/markmap_markdown_to_mindmap_data.py markmap.md -o mindmap-data.json
+python skills/interactive-mindmap-editor/scripts/mindmap_data_to_markmap_markdown.py mindmap-data.json -o markmap.md
+
+# 生成可双击打开的离线 Markmap HTML
+python skills/interactive-mindmap-editor/scripts/render_markmap_html.py mindmap-data.json \
+  --template templates/interactive-mindmap.html \
+  --runtime runtime/markmap-preview.js \
+  --assets runtime/markmap-assets.js \
+  --styles runtime/markmap-preview.css \
+  -o output/markmap.html
 ```
 
 ## 更新插件

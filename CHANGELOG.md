@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+## 0.10.0+markmap-runtime.20260814000000 - 2026-08-14
+
+- Added reusable Markmap preview runtime, CSS, offline embedded assets, and standalone HTML template.
+- Added Markmap Markdown <-> mind map JSON conversion scripts.
+- Added `render_markmap_html.py` for generating standalone offline Markmap HTML files.
+- Added finite SVG sizing, renderer cleanup, and local tree fallback to the reusable runtime.
+- Added `SKILL_CONSTRAINTS.md` with the capability inventory, performance requirements, execution checklist, and acceptance checklist.
+- Linked the constraints from both Claude and Codex Skill entry points and the usage documentation.
+- Fixed `install-codex.ps1` parsing compatibility with Windows PowerShell 5.1 by removing non-ASCII comments and prompt text.
+- Documented the update path for an existing local clone; use `git pull` instead of running `git clone` again.
+
 ## 0.9.0+merged.20260813160000 - 2026-08-13
 
 - Merged standalone HTML export workflow into the Markmap-compatible master line.

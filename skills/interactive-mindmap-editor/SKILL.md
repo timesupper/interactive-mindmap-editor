@@ -5,6 +5,10 @@ description: Create, repair, and extend standalone interactive HTML mind map edi
 
 # Interactive Mindmap Editor
 
+## Execution Constraints
+
+Read the repository-level `SKILL_CONSTRAINTS.md` before and after each task. It defines the supported capability inventory, performance constraints, verification checklist, and the distinction between embedded Markmap preview and standalone Markmap conversion scripts. Treat actual files and verified behavior as authoritative over historical documentation.
+
 ## Overview
 
 Use this skill to create or modify standalone HTML mind map editors where nodes are rendered as DOM elements and connected with SVG paths. It supports six related jobs: converting text into a mind map hierarchy, converting Markdown and Markmap-compatible outlines to and from the canonical JSON, exporting that hierarchy to XMind-compatible `.xmind`, importing `.xmind` back into plugin JSON, and repairing interactive editing/folding/layout behavior in an existing mind map.
@@ -74,7 +78,7 @@ Generated standalone HTML mind maps should include `导入 Markdown` and `导出
 
 ## Markmap Interchange
 
-Use Markmap as a Markdown-based preview and interchange layer, not as the primary editing engine.
+Use Markmap as a Markdown-based preview and interchange layer, not as the primary editing engine. Use `render_markmap_html.py` with the bundled template, runtime, CSS, and embedded assets to generate a standalone offline preview that works from a local `file://` URL.
 
 Convert Markmap-compatible Markdown to mind map JSON:
 
@@ -86,6 +90,7 @@ Convert mind map JSON to Markmap-compatible Markdown:
 
 ```bash
 python scripts/mindmap_data_to_markmap_markdown.py mindmap-data.json -o markmap.md
+python scripts/render_markmap_html.py mindmap-data.json -o output/markmap.html --template templates/interactive-mindmap.html --runtime runtime/markmap-preview.js --assets runtime/markmap-assets.js --styles runtime/markmap-preview.css
 ```
 
 Rules:

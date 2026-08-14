@@ -23,7 +23,15 @@ claude-skill-interactive-mindmap/
 ├── README.md                                # 本说明
 ├── USAGE.md                                 # 详细安装与使用说明
 ├── CHANGELOG.md                             # 版本记录
+├── SKILL_CONSTRAINTS.md                     # Skill 功能、性能和验收约束
 ├── install-codex.ps1                        # Codex 一键安装脚本（PowerShell）
+├── SKILL_CONSTRAINTS.md                     # Skill 功能、性能和验收约束
+├── templates/
+│   └── interactive-mindmap.html              # 可生成的离线 Markmap HTML 模板
+├── runtime/
+│   ├── markmap-preview.js                    # Markmap 渲染与回退运行时
+│   ├── markmap-preview.css                   # Markmap 预览样式
+│   └── markmap-assets.js                     # 固定版本的内嵌离线依赖
 └── skills/
     └── interactive-mindmap-editor/
         ├── SKILL.md                         # Codex 技能定义（供 Codex 读取）
@@ -35,6 +43,7 @@ claude-skill-interactive-mindmap/
             ├── mindmap_data_to_markdown.py  # 思维导图 JSON → Markdown 提纲
             ├── markmap_markdown_to_mindmap_data.py # Markmap Markdown → 思维导图 JSON
             ├── mindmap_data_to_markmap_markdown.py # 思维导图 JSON → Markmap Markdown
+            ├── render_markmap_html.py       # JSON → 独立离线 Markmap HTML
             ├── mindmap_data_to_xmind.py     # JSON → .xmind
             ├── text_to_xmind.py             # 文本/Markdown → .xmind
             └── xmind_to_mindmap_data.py     # .xmind → JSON
@@ -70,10 +79,21 @@ git clone https://github.com/timesupper/interactive-mindmap-editor.git ".\.claud
 ### Codex（CLI 与桌面版）
 
 ```powershell
+New-Item -ItemType Directory -Force "$HOME\plugins" | Out-Null
 git clone https://github.com/timesupper/interactive-mindmap-editor.git "$HOME\plugins\interactive-mindmap-editor"
 cd "$HOME\plugins\interactive-mindmap-editor"
 .\install-codex.ps1
 ```
+
+如果目录已经存在，不要再次执行 `git clone`。直接更新并安装：
+
+```powershell
+cd "$HOME\plugins\interactive-mindmap-editor"
+git pull origin master
+.\install-codex.ps1
+```
+
+`install-codex.ps1` 使用 ASCII 注释和提示，兼容 Windows PowerShell 5.1 与 PowerShell 7。PowerShell 5.1 若遇到执行策略限制，可在当前窗口执行 `Set-ExecutionPolicy -Scope Process Bypass` 后重试。
 
 验证：
 
@@ -99,10 +119,13 @@ python skills/interactive-mindmap-editor/scripts/markmap_markdown_to_mindmap_dat
 - 当前交互式 HTML 编辑器仍然是主编辑器。
 - `Markmap` 作为 Markdown 提纲的快速预览和互通层使用，不替代现有编辑、拖拽、自由标题、折叠持久化和 XMind 能力。
 - 当前仓库已完成第一阶段：补齐 `mindmap JSON <-> Markmap Markdown` 的转换入口。
-- HTML 侧已支持内嵌离线 Markmap 预览：优先使用内嵌渲染引擎，失败时回退本地树形预览，并支持层级折叠状态恢复、单菜单悬停展开、以及单按钮全屏/退出全屏切换。
+- 当前仓库已提供可复用的 HTML Markmap 运行时、离线依赖资产和 HTML 模板：优先使用内嵌渲染引擎，失败时回退本地树形预览。
+- `render_markmap_html.py` 可将思维导图 JSON 生成独立、可双击打开的 Markmap HTML。
 - 规划文档见 [docs/markmap-plan.md](docs/markmap-plan.md)。
 
 ## 双兼容说明
+
+功能边界、性能要求和执行前后检查清单见 [SKILL_CONSTRAINTS.md](SKILL_CONSTRAINTS.md)。
 
 同一份 `scripts/` 被 Claude 和 Codex 共享，避免重复维护：
 

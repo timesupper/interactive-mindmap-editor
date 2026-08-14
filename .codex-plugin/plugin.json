@@ -1,6 +1,6 @@
 {
   "name": "interactive-mindmap-editor",
-  "version": "0.9.0+merged.20260813160000",
+  "version": "0.10.0+markmap-runtime.20260814000000",
   "description": "Create, repair, present, import, and export interactive HTML, Markdown, Markmap, and XMind mind maps. Works on Claude Desktop, Claude Code (CLI), Codex Desktop, and Codex CLI.",
   "author": {
     "name": "Local developer"

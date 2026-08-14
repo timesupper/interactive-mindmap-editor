@@ -1,0 +1,28 @@
+{
+  "id": "root",
+  "title": "投资体系",
+  "sub": "Markmap runtime fixture",
+  "type": "root",
+  "children": [
+    {
+      "id": "part-1",
+      "title": "基本面分析",
+      "type": "part",
+      "children": [
+        {
+          "id": "topic-1",
+          "title": "财务指标",
+          "sub": "收入、利润和现金流",
+          "type": "topic",
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "part-2",
+      "title": "技术分析",
+      "type": "part",
+      "children": []
+    }
+  ]
+}

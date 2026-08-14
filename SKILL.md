@@ -5,6 +5,10 @@ description: Create, repair, present, import, and export interactive HTML mind m
 
 # Interactive Mindmap Editor
 
+## Execution Constraints
+
+Before and after any task, read [SKILL_CONSTRAINTS.md](SKILL_CONSTRAINTS.md). It is the source of truth for supported capabilities, performance requirements, missing Markmap scripts, and the execution/acceptance checklists. Do not claim a conversion script exists unless its file is present in the repository.
+
 ## Overview
 
 Use this skill to create or modify standalone interactive HTML mind map editors (nodes rendered as DOM elements, connected with SVG paths) and to convert between plain text, Markdown, Markmap-compatible Markdown, mind map JSON, and XMind `.xmind` packages. It supports six related jobs:
@@ -26,6 +30,7 @@ python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/markdown_t
 python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/mindmap_data_to_markdown.py" mindmap-data.json -o outline.md
 python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/markmap_markdown_to_mindmap_data.py" markmap.md -o mindmap-data.json
 python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/mindmap_data_to_markmap_markdown.py" mindmap-data.json -o markmap.md
+python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/render_markmap_html.py" mindmap-data.json -o output/markmap.html --template "${CLAUDE_SKILL_DIR}/templates/interactive-mindmap.html" --runtime "${CLAUDE_SKILL_DIR}/runtime/markmap-preview.js" --assets "${CLAUDE_SKILL_DIR}/runtime/markmap-assets.js" --styles "${CLAUDE_SKILL_DIR}/runtime/markmap-preview.css"
 python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/mindmap_data_to_xmind.py" mindmap-data.json -o output.xmind
 python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/text_to_xmind.py" input.md -o output.xmind --root-title "主题"
 python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/xmind_to_mindmap_data.py" input.xmind -o mindmap-data.json
@@ -110,6 +115,8 @@ python "${CLAUDE_SKILL_DIR}/skills/interactive-mindmap-editor/scripts/mindmap_da
 Generated standalone HTML mind maps should include `导入 Markdown` and `导出 Markdown` controls when import/export controls are present.
 
 ## Markmap Interchange
+
+For a standalone offline preview, use `render_markmap_html.py` with the bundled template, runtime, CSS, and embedded assets. Do not replace the embedded assets with a CDN URL when the output must open by double-clicking a local HTML file.
 
 Use Markmap as a Markdown-based interchange and preview layer, not as a replacement for the existing editor.
 

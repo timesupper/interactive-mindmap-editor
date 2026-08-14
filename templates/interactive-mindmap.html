@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{TITLE}}</title>
+  <style>{{STYLES}}</style>
+</head>
+<body>
+  <button id="openMarkmap" type="button">打开 Markmap 预览</button>
+  <div class="imm-markmap-dialog" aria-hidden="true">
+    <div class="imm-markmap-panel" role="dialog" aria-modal="true" aria-label="Markmap 预览">
+      <div class="imm-markmap-toolbar">
+        <button id="markmapFit" type="button">适应</button>
+        <button id="markmapFold" type="button">折叠/展开</button>
+        <button id="markmapFullscreen" type="button">全屏</button>
+        <button id="markmapClose" type="button">关闭</button>
+      </div>
+      <div class="imm-markmap-canvas"></div>
+    </div>
+  </div>
+  <script>window.__INTERACTIVE_MINDMAP_DATA__ = {{DATA}};</script>
+  <script>{{ASSETS}}</script>
+  <script>{{RUNTIME}}</script>
+  <script>
+    (function () {
+      var preview = new InteractiveMindmapMarkmap.Preview({
+        assets: window.__INTERACTIVE_MINDMAP_MARKMAP_LIBS__
+      });
+      var open = document.getElementById('openMarkmap');
+      var close = document.getElementById('markmapClose');
+      var fit = document.getElementById('markmapFit');
+      var fold = document.getElementById('markmapFold');
+      var fullscreen = document.getElementById('markmapFullscreen');
+      var dialog = document.querySelector('.imm-markmap-dialog');
+      open.addEventListener('click', function () { preview.open(window.__INTERACTIVE_MINDMAP_DATA__); dialog.setAttribute('aria-hidden', 'false'); });
+      close.addEventListener('click', function () { preview.close(); dialog.setAttribute('aria-hidden', 'true'); });
+      fit.addEventListener('click', function () { preview.fit(); });
+      fold.addEventListener('click', function () { preview.setExpandLevel(preview.expandLevel <= 1 ? preview.maxLevel : 1); });
+      fullscreen.addEventListener('click', function () {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+      });
+      document.addEventListener('fullscreenchange', function () {
+        document.body.classList.toggle('imm-markmap-fullscreen', Boolean(document.fullscreenElement));
+        setTimeout(function () { preview.fit(); }, 50);
+      });
+      try {
+        var saved = JSON.parse(localStorage.getItem('interactive-mindmap-editor:markmap-state') || '{}');
+        if (saved.open) { preview.open(window.__INTERACTIVE_MINDMAP_DATA__); dialog.setAttribute('aria-hidden', 'false'); }
+      } catch (error) {}
+    }());
+  </script>
+</body>
+</html>
